@@ -1237,7 +1237,7 @@ class WC_upsy_Tagging
           }, f = function () {
             upsy_sdk.init(<?php echo $upsy_id  ?>);
           };
-          e("https://d6d3bk3t0wue8.cloudfront.net/static/static/upsy.js", f, document.body)
+          e("https://d6d3bk3t0wue8.cloudfront.net/static/upsy.js", f, document.body)
         })()
       </script>
 		<?php
