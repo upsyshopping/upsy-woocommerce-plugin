@@ -1235,7 +1235,7 @@ class WC_upsy_Tagging
             a.onreadystatechange = b;
             d.appendChild(a)
           }, f = function () {
-            upsy_sdk.init(<?php echo $upsy_id  ?>);
+            upsy_sdk.init("<?php echo $upsy_id; ?>");
           };
           e("https://d6d3bk3t0wue8.cloudfront.net/static/upsy.js", f, document.body)
         })()
