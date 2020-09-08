@@ -268,10 +268,10 @@ class WC_upsy_Tagging
 	function add_menu()
 	{
 		//add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
-		add_menu_page($this->plugin_name, $this->plugin_display_name, 'administrator', $this->plugin_name, array($this, 'upsy_admin_page'), 'dashicons-chart-area', 26);
+		add_menu_page($this->plugin_name, $this->plugin_display_name, 'administrator', $this->plugin_name, array($this, 'upsy_customer_settings'), 'dashicons-chart-area', 26);
 		
 		//add_submenu_page( '$parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-		add_submenu_page($this->plugin_name, $this->plugin_display_name, 'Settings', 'administrator', 'upsy-settings', array($this, 'upsy_customer_settings'));
+		//add_submenu_page($this->plugin_name, $this->plugin_display_name, 'Settings', 'administrator', 'upsy-settings', array($this, 'upsy_customer_settings'));
 	}
 	
 	/**
