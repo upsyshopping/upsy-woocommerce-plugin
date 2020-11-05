@@ -1089,11 +1089,23 @@ class WC_upsy_Tagging
 	 * @return string
 	 * @since 1.0.0
 	 */
-	protected function format_price($price)
-	{
-		return number_format($price, 2, '.', '');
+	protected function format_price( $price ) {
+		if (is_numeric($price)) {
+			//normal float - do nothing	
+		}else{
+			//string or something else
+			if(is_string($price) && $price != ''){
+				//convert str to float
+				$price = floatval($price);
+			}else{
+				//empty string or something else
+				$price = 0;
+			}
+		}
+		return number_format( $price, 2, '.', '' );	
 	}
-	
+
+
 	/**
 	 * Builds a category path string for given term including all its parents.
 	 *

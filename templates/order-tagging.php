@@ -36,4 +36,22 @@
 			<?php endforeach; ?>
 		</div>
 	</div>
+
+	<script type="text/javascript">
+		var _UPupdatePageTypes = function(){
+		    var _UPtypeslen = jQuery('.upseller_page_type').length;
+		    var _UPthis_pagetype = 'unknown';
+		    if(_UPtypeslen > 1){
+		        _UPthis_pagetype = jQuery('.upseller_page_type:first').text();
+		        if(_UPthis_pagetype == 'checkout'){
+		            jQuery('.upseller_page_type:first').text('thank_you');
+		            jQuery('.upseller_page_type:nth-child(2n)').remove();
+		        }
+		    }
+		};
+		jQuery(document).ready(function() {
+		    _UPupdatePageTypes();
+		});		
+	</script>
+	
 <?php endif; ?>
