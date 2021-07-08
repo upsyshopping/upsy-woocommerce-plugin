@@ -17,9 +17,10 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ../private.pem
           sudo chmod 600 ../private.pem
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          scp -i $SSH_KEY_PATH -r $PWD bitnami@3.65.207.107:/home/bitnami/apps/wordpress/htdocs/wp-content/plugins/upsy-woocommerce-v2-git
+          scp -i $SSH_KEY_PATH -r $PROJECT_PATH bitnami@3.65.207.107:/home/bitnami/apps/wordpress/htdocs/wp-content/plugins/upsy-woocommerce-v2-git
         shell: bash
         env:
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
           SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
           SSH_KEY_PATH: ${{ github.workspace }}/../private.pem
+          PROJECT_PATH: ${{secrets.SSH_KNOWN_HOSTS}}
