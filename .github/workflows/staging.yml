@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: Create SSH key
+      - name: Deploy project to staging pluginss folder
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_PRIVATE_KEY" > ../private.pem
