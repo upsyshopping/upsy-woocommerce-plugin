@@ -1278,8 +1278,14 @@ class WC_upsy_Tagging
             upsy_sdk.init("<?php echo $upsy_id; ?>");
           };
 		  if ("<?php echo $wp_env; ?>" != "production") {
-		  	window.upsyEnvironment = "<?php echo $upsy_env; ?>";
-			e("http://localhost:8000/static/upsy.js", f, document.body)
+		  	const upsyEnv = window.upsyEnvironment = "<?php echo $upsy_env; ?>";
+			if (upsyEnv === "local") {
+				e("http://localhost:8000/static/upsy.js", f, document.body)
+			} else if (upsyEnv === "staging") {
+				e("http://upsy-staging.shoppinghelper.net/static/upsy.js", f, document.body)
+			} else {
+				e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
+			}
 		  } else {
 			e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
 		  }
