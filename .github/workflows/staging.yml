@@ -1,0 +1,26 @@
+name: Staging Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Deploy project to staging pluginss folder
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ../private.pem
+          sudo chmod 600 ../private.pem
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          scp -i $SSH_KEY_PATH -r * bitnami@3.65.207.107:/home/bitnami/apps/wordpress/htdocs/wp-content/plugins/upsy-woocommerce-v2-git
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+          SSH_KEY_PATH: ${{ github.workspace }}/../private.pem
+          PROJECT_PATH: ${{ github.workspace }}

@@ -337,7 +337,7 @@ class WC_upsy_Tagging
 		);
 		
 		unset($args);
-		$args = array(
+		$customer_id_args = array(
 			'type' => 'input',
 			'subtype' => 'text',
 			'id' => 'upsy_settings_customer_id',
@@ -354,14 +354,40 @@ class WC_upsy_Tagging
 			array($this, 'upsy_customer_settings_field'),
 			'upsy_customer_general_settings',
 			'upsy_general_section',
-			$args
+			$customer_id_args
 		);
-		
-		
+
 		register_setting(
 			'upsy_customer_general_settings',
 			'upsy_settings_customer_id'
 		);
+
+		if (wp_get_environment_type() !== "production") {
+			$environment_args = array(
+				'type' => 'input',
+				'subtype' => 'text',
+				'id' => 'upsy_settings_environment',
+				'name' => 'upsy_settings_environment',
+				'required' => 'false',
+				'get_options_list' => '',
+				'value_type' => 'normal',
+				'wp_data' => 'option'
+			);
+	
+			add_settings_field(
+				'upsy_settings_environment',
+				'Upsy environment (Does this work?)',
+				array($this, 'upsy_customer_settings_field'),
+				'upsy_customer_general_settings',
+				'upsy_general_section',
+				$environment_args
+			);
+			
+			register_setting(
+				'upsy_customer_general_settings',
+				'upsy_settings_environment'
+			);
+		}
 		
 	}
 	
@@ -1198,14 +1224,14 @@ class WC_upsy_Tagging
 		add_action('wp_footer', array($this, 'load_upsy_customer_script'), 11, 0);
 		
 		
-		add_action('loop_start', array($this, 'tag_page'), 20, 0);
+		add_action('wp_footer', array($this, 'tag_page'), 20, 0);
 		//add_action( 'wp_head', array( $this, 'tag_page_cart' ), 20, 0 );
 		//add_action( 'wp_head', array( $this, 'tag_page_notfound' ), 20, 0 );
 		//add_action( 'wp_head', array( $this, 'order' ), 20, 0 );
 		
 		
-		add_action('woocommerce_before_single_product', array($this, 'tag_product'), 20, 0);
-		add_action('woocommerce_before_main_content', array($this, 'tag_category'), 30, 0);
+		add_action('wp_footer', array($this, 'tag_product'), 20, 0);
+		add_action('wp_footer', array($this, 'tag_category'), 30, 0);
 		add_action('woocommerce_thankyou', array($this, 'tag_order'), 10, 1);
 		add_action('wp_footer', array($this, 'tag_customer'), 10, 0);
 		add_action('wp_footer', array($this, 'tag_cart'), 10, 0);
@@ -1236,6 +1262,8 @@ class WC_upsy_Tagging
 	function load_upsy_customer_script()
 	{
 		$upsy_id = get_option('upsy_settings_customer_id');
+		$upsy_env = get_option('upsy_settings_environment');
+		$wp_env = wp_get_environment_type();
 		?>
       <script>
 
@@ -1249,7 +1277,18 @@ class WC_upsy_Tagging
           }, f = function () {
             upsy_sdk.init("<?php echo $upsy_id; ?>");
           };
-          e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
+		  if ("<?php echo $wp_env; ?>" != "production") {
+		  	const upsyEnv = window.upsyEnvironment = "<?php echo $upsy_env; ?>";
+			if (upsyEnv === "local") {
+				e("http://localhost:8000/static/upsy.js", f, document.body)
+			} else if (upsyEnv === "staging") {
+				e("http://upsy-staging.shoppinghelper.net/static/upsy.js", f, document.body)
+			} else {
+				e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
+			}
+		  } else {
+			e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
+		  }
         })()
       </script>
 		<?php
