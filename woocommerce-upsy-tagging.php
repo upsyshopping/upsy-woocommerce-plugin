@@ -619,7 +619,7 @@ class WC_upsy_Tagging
 		
 		if (is_front_page()) {
 			//echo 'FRONT';
-			$page_type = 'cart';
+			$page_type = 'front';
 			if (!empty($page_type)) {
 				require($this->plugin_dir . 'templates/page-type.php');
 			}
