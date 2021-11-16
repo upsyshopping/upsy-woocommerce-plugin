@@ -376,7 +376,7 @@ class WC_upsy_Tagging
 	
 			add_settings_field(
 				'upsy_settings_environment',
-				'Upsy environment',
+				'Upsy environment (Does this work?)',
 				array($this, 'upsy_customer_settings_field'),
 				'upsy_customer_general_settings',
 				'upsy_general_section',
@@ -619,7 +619,7 @@ class WC_upsy_Tagging
 		
 		if (is_front_page()) {
 			//echo 'FRONT';
-			$page_type = 'front';
+			$page_type = 'cart';
 			if (!empty($page_type)) {
 				require($this->plugin_dir . 'templates/page-type.php');
 			}
@@ -1224,14 +1224,14 @@ class WC_upsy_Tagging
 		add_action('wp_footer', array($this, 'load_upsy_customer_script'), 11, 0);
 		
 		
-		add_action('loop_start', array($this, 'tag_page'), 20, 0);
+		add_action('wp_footer', array($this, 'tag_page'), 20, 0);
 		//add_action( 'wp_head', array( $this, 'tag_page_cart' ), 20, 0 );
 		//add_action( 'wp_head', array( $this, 'tag_page_notfound' ), 20, 0 );
 		//add_action( 'wp_head', array( $this, 'order' ), 20, 0 );
 		
 		
-		add_action('woocommerce_before_single_product', array($this, 'tag_product'), 20, 0);
-		add_action('woocommerce_before_main_content', array($this, 'tag_category'), 30, 0);
+		add_action('wp_footer', array($this, 'tag_product'), 20, 0);
+		add_action('wp_footer', array($this, 'tag_category'), 30, 0);
 		add_action('woocommerce_thankyou', array($this, 'tag_order'), 10, 1);
 		add_action('wp_footer', array($this, 'tag_customer'), 10, 0);
 		add_action('wp_footer', array($this, 'tag_cart'), 10, 0);
