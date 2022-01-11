@@ -1,28 +1,14 @@
 <?php
 /*
 	Plugin Name: UPSY for WooCommerce
-	Description: Implements tagging blocks for WooCommerce. This version of the plugin is made by Upseller Oy.
-	Author: Upseller Oy
-	Version: 2.0.0
-	License: GPLv2
+	Plugin URI: https://upsyshopping.com
+	Description: Implements tagging blocks for WooCommerce.
+	Author: Upsy Company Oy
+	Version: 2.1.0
+	License: GPL3
 */
 
-/*	Copyright 2020 Upseller Oy
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License, version 2, as
-	published by the Free Software Foundation.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-/*  Original v1.x plugin https://wordpress.org/plugins/nosto-for-woocommerce/ */
 
 /**
  * Main plugin class.
@@ -38,7 +24,7 @@ class WC_upsy_Tagging
 	 *
 	 * @since 1.0.0
 	 */
-	const VERSION = '2.0.5';
+	const VERSION = '2.1.0';
 	
 	/**
 	 * Minimum WordPress version this plugin works with.
