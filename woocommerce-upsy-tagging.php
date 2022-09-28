@@ -79,6 +79,11 @@ class WC_upsy_Tagging
 	 * Variation product type
 	 */
 	const PRODUCT_TYPE_GROUPED = 'grouped';
+
+	/*
+	 * Woocommerce Bundle product type
+	 */
+	const PRODUCT_TYPE_BUNDLE = 'woosb';
 	
 	/**
 	 * Default server address for the upsy marketing automation service.
@@ -143,6 +148,7 @@ class WC_upsy_Tagging
 		self::PRODUCT_TYPE_SIMPLE,
 		self::PRODUCT_TYPE_VARIATION,
 		self::PRODUCT_TYPE_GROUPED,
+		self::PRODUCT_TYPE_BUNDLE,
 	);
 	
 	/**
