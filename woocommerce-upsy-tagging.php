@@ -2,12 +2,11 @@
 /*
 	Plugin Name: UPSY for WooCommerce
 	Plugin URI: https://upsyshopping.com
-	Description: Implements tagging blocks for WooCommerce.
+	Description: Enables UPSY for WooCommerce.
 	Author: Upsy Company Oy
 	Version: 2.1.0
 	License: GPL3
 */
-
 
 /**
  * Main plugin class.
@@ -85,13 +84,13 @@ class WC_upsy_Tagging
 	 */
 	const PRODUCT_TYPE_BUNDLE = 'bundle';
 	
+
 	/**
-	 * Default server address for the upsy marketing automation service.
-	 * Used on plugin config page.
-	 *
-	 * @since 1.0.0
+	 * upsy default js URLs - use plugin settings to override these
 	 */
-	const DEFAULT_upsy_SERVER_ADDRESS = 'undefined.upsy.com';
+	const UPSYJS_URL_PRODUCTION = 'https://upsy.shoppinghelper.net/static/upsy.js';
+	const UPSYJS_URL_STAGING = 'http://upsy-staging.shoppinghelper.net/static/upsy.js';
+	const UPSYJS_URL_LOCAL = 'http://localhost:8000/static/upsy.js';	
 	
 	/**
 	 * upsy page types
@@ -305,7 +304,7 @@ class WC_upsy_Tagging
 	public function upsy_display_customer_settings()
 	{
 		
-		echo '<p>Enter your upseller customer id.</p>';
+		echo '<p>Enter your upsy customer id.</p>';
 	}
 	
 	public function populate_setting_fields()
@@ -354,6 +353,8 @@ class WC_upsy_Tagging
 		);
 
 		if (wp_get_environment_type() !== "production") {
+
+			//env
 			$environment_args = array(
 				'type' => 'input',
 				'subtype' => 'text',
@@ -367,7 +368,7 @@ class WC_upsy_Tagging
 	
 			add_settings_field(
 				'upsy_settings_environment',
-				'Upsy environment (Does this work?)',
+				'Upsy environment',
 				array($this, 'upsy_customer_settings_field'),
 				'upsy_customer_general_settings',
 				'upsy_general_section',
@@ -378,6 +379,33 @@ class WC_upsy_Tagging
 				'upsy_customer_general_settings',
 				'upsy_settings_environment'
 			);
+
+			//jsurl
+			$jsurl_args = array(
+				'type' => 'input',
+				'subtype' => 'text',
+				'id' => 'upsy_settings_jsurl',
+				'name' => 'upsy_settings_jsurl',
+				'required' => 'false',
+				'get_options_list' => '',
+				'value_type' => 'normal',
+				'wp_data' => 'option'
+			);
+	
+			add_settings_field(
+				'upsy_settings_jsurl',
+				'Override Upsy js-url',
+				array($this, 'upsy_customer_settings_field'),
+				'upsy_customer_general_settings',
+				'upsy_general_section',
+				$jsurl_args
+			);
+			
+			register_setting(
+				'upsy_customer_general_settings',
+				'upsy_settings_jsurl'
+			);
+
 		}
 		
 	}
@@ -392,33 +420,49 @@ class WC_upsy_Tagging
 			$wp_data_value = get_post_meta($args['post_id'], $args['name'], true);
 		}
 		
-		switch ($args['type']) {
-			
-			case 'input':
-				$value = ($args['value_type'] == 'serialized') ? serialize($wp_data_value) : $wp_data_value;
-				if ($args['subtype'] != 'checkbox') {
-					$prependStart = (isset($args['prepend_value'])) ? '<div class="input-prepend"> <span class="add-on">' . $args['prepend_value'] . '</span>' : '';
-					$prependEnd = (isset($args['prepend_value'])) ? '</div>' : '';
-					$step = (isset($args['step'])) ? 'step="' . $args['step'] . '"' : '';
-					$min = (isset($args['min'])) ? 'min="' . $args['min'] . '"' : '';
-					$max = (isset($args['max'])) ? 'max="' . $args['max'] . '"' : '';
-					if (isset($args['disabled'])) {
-						// hide the actual input bc if it was just a disabled input the informaiton saved in the database would be wrong - bc it would pass empty values and wipe the actual information
-						echo $prependStart . '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '_disabled" ' . $step . ' ' . $max . ' ' . $min . ' name="' . $args['name'] . '_disabled" size="40" disabled value="' . esc_attr($value) . '" /><input type="hidden" id="' . $args['id'] . '" ' . $step . ' ' . $max . ' ' . $min . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" />' . $prependEnd;
-					} else {
-						echo $prependStart . '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '" "' . $args['required'] . '" ' . $step . ' ' . $max . ' ' . $min . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" />' . $prependEnd;
-					}
-					/*<input required="required" '.$disabled.' type="number" step="any" id="'.$this->plugin_name.'_cost2" name="'.$this->plugin_name.'_cost2" value="' . esc_attr( $cost ) . '" size="25" /><input type="hidden" id="'.$this->plugin_name.'_cost" step="any" name="'.$this->plugin_name.'_cost" value="' . esc_attr( $cost ) . '" />*/
-					
-				} else {
-					$checked = ($value) ? 'checked' : '';
-					echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '" "' . $args['required'] . '" name="' . $args['name'] . '" size="40" value="1" ' . $checked . ' />';
+		//only input=text for now
+
+		$value = ($args['value_type'] == 'serialized') ? serialize($wp_data_value) : $wp_data_value;
+
+		if($args['id'] == 'upsy_settings_environment'){
+			//if wp-config var set
+
+			if($value == ''){
+				$value = wp_get_environment_type();
+				echo "Variable defined at wp-config [production/staging/local]. Example: define('WP_ENVIRONMENT_TYPE', 'staging');<br/>";
+			}
+			//disabled for now to work with URL
+			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" disabled="disabled"/>';
+
+		}else if($args['id'] == 'upsy_settings_jsurl'){
+
+			if(wp_get_environment_type() == 'local'){
+				echo "Default for this: " . self::UPSYJS_URL_LOCAL . "<br/>";
+			}else if(wp_get_environment_type() == 'staging'){
+				echo "Default for this: " . self::UPSYJS_URL_STAGING . "<br/>";
+			}else{
+				echo "Default for this: " . self::UPSYJS_URL_PRODUCTION . "<br/>";
+			}
+
+			/*
+			if($value == ''){
+				if(wp_get_environment_type() == 'local'){
+					$value = self::UPSYJS_URL_LOCAL;
+				}else if(wp_get_environment_type() == 'staging'){
+					$value = self::UPSYJS_URL_STAGING;
+				}else{
+					//production
+					$value = self::UPSYJS_URL_PRODUCTION;					
 				}
-				break;
-			default:
-				# code...
-				break;
+			}
+			*/
+			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '"/>';
+
+		}else{
+			//normal input
+			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" />';
 		}
+
 	}
 	
 	/**
@@ -1208,10 +1252,6 @@ class WC_upsy_Tagging
 		//add_action( 'woocommerce_before_single_product', array( $this, 'tag_product' ), 20, 0 );
 		
 		
-		//add_action( 'wp_head', array( $this, 'add_upsy_js_stub' ), 10, 0 );
-		//add_action( 'wp_head', array( $this, 'add_upsy_js' ), 11, 0 );
-		
-		
 		add_action('wp_footer', array($this, 'load_upsy_customer_script'), 11, 0);
 		
 		
@@ -1227,7 +1267,7 @@ class WC_upsy_Tagging
 		add_action('wp_footer', array($this, 'tag_customer'), 10, 0);
 		add_action('wp_footer', array($this, 'tag_cart'), 10, 0);
 		
-		//add_action( 'wp_footer', array( $this, 'add_upseller_js' ), 12, 0 );
+
 		
 		if ((bool)$this->use_default_elements) {
 			add_action('woocommerce_after_single_product_summary', array($this, 'add_product_page_bottom_elements'), 30, 0);
@@ -1252,36 +1292,60 @@ class WC_upsy_Tagging
 	
 	function load_upsy_customer_script()
 	{
-		$upsy_id = get_option('upsy_settings_customer_id');
-		$upsy_env = get_option('upsy_settings_environment');
-		$wp_env = wp_get_environment_type();
-		?>
-      <script>
 
-        (function () {
-          var e = function (c, b, d) {
-            var a = document.createElement("script");
-            a.src = c;
-            a.onload = b;
-            a.onreadystatechange = b;
-            d.appendChild(a)
-          }, f = function () {
-            upsy_sdk.init("<?php echo $upsy_id; ?>");
-          };
-		  if ("<?php echo $wp_env; ?>" != "production") {
-		  	const upsyEnv = window.upsyEnvironment = "<?php echo $upsy_env; ?>";
-			if (upsyEnv === "local") {
-				e("http://localhost:8000/static/upsy.js", f, document.body)
-			} else if (upsyEnv === "staging") {
-				e("http://upsy-staging.shoppinghelper.net/static/upsy.js", f, document.body)
-			} else {
-				e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
+		$wp_env = wp_get_environment_type();
+
+		$upsy_id = get_option('upsy_settings_customer_id');
+		//$upsy_env = get_option('upsy_settings_environment');
+		$upsy_env = $wp_env; //override setting for now
+
+		$upsy_jsurl = get_option('upsy_settings_jsurl');
+
+		$upsyjsurl = self::UPSYJS_URL_PRODUCTION; //default
+
+		if($wp_env == 'local'){
+			if($upsy_jsurl != ''){
+				//from settings
+				$upsyjsurl = $upsy_jsurl;
+			}else{
+				$upsyjsurl = self::UPSYJS_URL_LOCAL;
 			}
-		  } else {
-			e("https://upsy.shoppinghelper.net/static/upsy.js", f, document.body)
-		  }
-        })()
-      </script>
+		}else if($wp_env == 'staging'){
+			if($upsy_jsurl != ''){
+				//from settings
+				$upsyjsurl = $upsy_jsurl;
+			}else{
+				$upsyjsurl = self::UPSYJS_URL_STAGING;
+			}
+		}
+
+		/*
+		//for JS tests
+	  	console.log('upsyEnv: <?php echo $upsy_env; ?>');
+	  	console.log('JSURL: <?php echo $upsyjsurl; ?>');
+		*/
+
+		?>
+<script type="text/javascript" id="upsy-loader">
+(function () {
+  var e = function (c, b, d) {
+    var a = document.createElement("script");
+    a.src = c;
+    a.onload = b;
+    a.onreadystatechange = b;
+    d.appendChild(a)
+  }, f = function () {
+    upsy_sdk.init("<?php echo $upsy_id; ?>");
+  };
+<?php
+if($wp_env != 'production' && $wp_env != ''){
+	//dev
+echo 'const upsyEnv = window.upsyEnvironment = "' . $upsy_env . '";';
+}
+?>
+e("<?php echo $upsyjsurl; ?>", f, document.body)
+})()
+</script>
 		<?php
 	}
 	
@@ -1393,62 +1457,6 @@ class WC_upsy_Tagging
 		}
 	}
 	
-	/**
-	 * Returns the url for upsy script
-	 *
-	 * @param string $account_id
-	 * @return string
-	 */
-	public static function get_upsy_embed_src($account_id)
-	{
-		return sprintf(
-			'//%s/include/%s',
-			self::get_upsy_server_address(),
-			$account_id
-		);
-	}
-	
-	/**
-	 * Returns the server address for upsy
-	 *
-	 * @return string
-	 */
-	public static function get_upsy_server_address()
-	{
-		$server_address = self::DEFAULT_upsy_SERVER_ADDRESS;
-		return $server_address;
-	}
-	
-	/**
-	 * Hook callback function for outputting the upsy include javascript.
-	 *
-	 * @since 1.1.0
-	 */
-	public function add_upsy_js()
-	{
-		if (!empty($this->account_id)) {
-			$this->render('upsy-js', array('server' => self::get_upsy_server_address(), 'account' => $this->account_id));
-		}
-	}
-	
-	/**
-	 * Hook callback function for outputting the upsy "javascript stub".
-	 *
-	 * @since 1.1.0
-	 */
-	public function add_upsy_js_stub()
-	{
-		if (!empty($this->account_id)) {
-			$this->render('upsy-js-stub');
-		}
-	}
-	
-	public function add_upseller_js()
-	{
-		if (false) {
-			$this->render('upseller-js');
-		}
-	}
 	
 }
 

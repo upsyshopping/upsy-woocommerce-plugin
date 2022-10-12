@@ -1,2 +1,4 @@
-_*.txt
 .DS_Store
+# .github/
+# .idea/
+_*.txt
