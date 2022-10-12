@@ -8,8 +8,6 @@
 	License: GPL3
 */
 
-
-
 /**
  * Main plugin class.
  *
@@ -80,6 +78,11 @@ class WC_upsy_Tagging
 	 * Variation product type
 	 */
 	const PRODUCT_TYPE_GROUPED = 'grouped';
+
+	/*
+	 * Woocommerce Bundle product type
+	 */
+	const PRODUCT_TYPE_BUNDLE = 'bundle';
 	
 
 	/**
@@ -144,6 +147,7 @@ class WC_upsy_Tagging
 		self::PRODUCT_TYPE_SIMPLE,
 		self::PRODUCT_TYPE_VARIATION,
 		self::PRODUCT_TYPE_GROUPED,
+		self::PRODUCT_TYPE_BUNDLE,
 	);
 	
 	/**
