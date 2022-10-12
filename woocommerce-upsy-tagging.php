@@ -83,7 +83,7 @@ class WC_upsy_Tagging
 	/*
 	 * Woocommerce Bundle product type
 	 */
-	const PRODUCT_TYPE_BUNDLE = 'woosb';
+	const PRODUCT_TYPE_BUNDLE = 'bundle';
 	
 	/**
 	 * Default server address for the upsy marketing automation service.
