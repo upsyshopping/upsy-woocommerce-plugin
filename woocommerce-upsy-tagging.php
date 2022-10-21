@@ -4,7 +4,7 @@
 	Plugin URI: https://upsyshopping.com
 	Description: Enables UPSY for WooCommerce.
 	Author: Upsy Company Oy
-	Version: 2.1.0
+	Version: 3.0.0
 	License: GPL3
 */
 
