@@ -88,9 +88,9 @@ class WC_upsy_Tagging
 	/**
 	 * upsy default js URLs - use plugin settings to override these
 	 */
-	const UPSYJS_URL_PRODUCTION = 'https://upsy.shoppinghelper.net/static/upsy.js';
-	const UPSYJS_URL_STAGING = 'http://upsy-staging.shoppinghelper.net/static/upsy.js';
-	const UPSYJS_URL_LOCAL = 'http://localhost:8000/static/upsy.js';	
+	const UPSYJS_URL_PRODUCTION = 'https://upsy-widget.upsyshopping.com/static/upsy.js';
+	const UPSYJS_URL_STAGING = 'https://upsy-widget-staging.upsyshopping.com/static/upsy.js';
+	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';	
 	
 	/**
 	 * upsy page types
