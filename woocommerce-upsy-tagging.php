@@ -1461,3 +1461,17 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 }
 
 add_action('plugins_loaded', array(WC_upsy_Tagging::get_instance(), 'init'));
+add_action('admin_enqueue_scripts', function($hook){
+    wp_enqueue_script( 'ajax-script', plugin_dir_url( __FILE__ ). "assets/js/main.js" , array('jquery'));
+	wp_localize_script('ajax-script', 'upsy_wc_auth', array('ajax_url' => admin_url('admin-ajax.php')));
+});
+
+add_action('wp_ajax_upsy_wc_auth_confirmation' , function(){
+	$table_name = 'isUpsyWcAuthSuccess';
+	$table_value = true;
+	if(empty(get_option('isUpsyWcAuthSuccess'))){
+		add_option($table_name, $table_value);
+	}
+	echo 'Success';
+	die();
+});
