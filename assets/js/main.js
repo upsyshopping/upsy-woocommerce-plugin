@@ -44,9 +44,7 @@
            return false;
         }
 		buttonSelector.addEventListener('click', function(){
-			if(window.confirm('Are you sure you want to proceed?')){
 				send_wc_authentication_request();
-			}
 		})
 	}
 
