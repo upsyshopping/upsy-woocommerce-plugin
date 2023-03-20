@@ -22,7 +22,7 @@
 	}
 
 	async function send_wc_authentication_request(){
-		const storeUrl=window.location.origin;
+		const storeUrl = upsy_wc_auth.host;
 		const returnUrl=window.location.href;
 		const baseUrl = `<?php echo(wp_get_environment_type()); ?>` === 'production' ? 'https://api.upsyshopping.com/v1/wc-auth' : 'http://localhost:3000/dev/v1/wc-auth';
 		
