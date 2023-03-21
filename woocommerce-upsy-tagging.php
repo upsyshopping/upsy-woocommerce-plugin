@@ -245,6 +245,7 @@ class WC_upsy_Tagging
 		// Add Upsy Menu and submenu to Sidebar
 		add_action('admin_menu', array($this, 'add_menu'), 9);
 		add_action('admin_init', array($this, 'populate_setting_fields'));
+		add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts_callback'));
 		
 	}
 	
@@ -255,6 +256,11 @@ class WC_upsy_Tagging
 	 *
 	 * @since 1.0.0
 	 */
+	function admin_enqueue_scripts_callback($hook){
+		wp_enqueue_script( 'ajax-script', plugin_dir_url( __FILE__ ). "assets/js/main.js" , array('jquery'));
+		wp_localize_script('ajax-script', 'upsy_wc_auth', array('ajax_url' => admin_url('admin-ajax.php'), 'host' => get_site_url(), 'environment' => wp_get_environment_type(), 'return_url' => esc_url(menu_page_url($this->get_plugin_name(), false))));
+	}
+
 	function add_menu()
 	{
 		//add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
@@ -273,11 +279,18 @@ class WC_upsy_Tagging
 	 */
 	function upsy_customer_settings()
 	{
-		// set this var to be used in the settings-display view
+			$page = $_GET['page'];
 		$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
+		$is_wc_auth_redirect = isset($page) && $page == $this->plugin_name && isset($_GET['user_id']);
+		add_action('admin_notices', array($this, 'upsy_settings_messages'));
+		// set this var to be used in the settings-display view
 		if (isset($_GET['error_message'])) {
-			add_action('admin_notices', array($this, 'upsy_settings_messages'));
-			do_action('admin_notices', $_GET['error_message']);
+			do_action('admin_notices', ['type' => 'error']);
+		}else if($is_wc_auth_redirect && $_GET['success'] == '0'){
+			do_action('admin_notices', ['type' => 'error', 'message' => 'Upsy WooCommerce Authentication Failed.Please try again']);
+		}else if($is_wc_auth_redirect && $_GET['success'] == '1'){
+			update_option('isUpsyWcAuthSuccess', '1');
+			do_action('admin_notices', ['type' => 'success', 'message' => 'Store successfully authorized - welcome to using Upsy! Your Upsy installation is now in progress in our systems. The Upsy team will get back to you when the setup is done, and your store is ready to be used']);
 		}
 		$this->render(self::TEMPLATE_CUSTOMER_SETTINGS, []);
 		
@@ -285,14 +298,10 @@ class WC_upsy_Tagging
 	
 	public function upsy_settings_messages($error_message)
 	{
-		switch ($error_message) {
-			case '1':
-				$message = __('There is an error occured please try again.', '');
-				$err_code = esc_attr('upsy_settings_customer_id');
-				$setting_field = 'upsy_settings_customer_id';
-				break;
-		}
-		$type = 'error';
+		$err_code = esc_attr('upsy_settings_customer_id');
+		$setting_field = 'upsy_settings_customer_id';
+		$type = is_array($data) && $data['type'] ? $data['type'] : 'error';
+		$message = is_array($data) && $data['message'] ? __($data['message'], '') : __('There is an error occured. Please try again','');
 		add_settings_error(
 			$setting_field,
 			$err_code,
@@ -1461,17 +1470,3 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 }
 
 add_action('plugins_loaded', array(WC_upsy_Tagging::get_instance(), 'init'));
-add_action('admin_enqueue_scripts', function($hook){
-    wp_enqueue_script( 'ajax-script', plugin_dir_url( __FILE__ ). "assets/js/main.js" , array('jquery'));
-	wp_localize_script('ajax-script', 'upsy_wc_auth', array('ajax_url' => admin_url('admin-ajax.php'), 'host' => get_site_url(), 'environment' => wp_get_environment_type(), 'success' => $_GET['success']));
-});
-
-add_action('wp_ajax_upsy_wc_auth_confirmation' , function(){
-	$table_name = 'isUpsyWcAuthSuccess';
-	$table_value = true;
-	if(empty(get_option('isUpsyWcAuthSuccess'))){
-		add_option($table_name, $table_value);
-	}
-	echo 'Success';
-	die();
-});
