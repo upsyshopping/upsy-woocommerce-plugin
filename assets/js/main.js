@@ -5,20 +5,23 @@
 
 
 	function print_upsy_wooCommerce_authentication_success_message(){
-		const queryString = window.location.search;
-		const successMessageSelector = document.getElementById('upsy_wc_auth_success_message');
-        const upsyAuthenticationBlock = document.getElementById('upsy_wc_auth_block');
-		const urlParams = new URLSearchParams(queryString);
+		const successMessageSelector = document.getElementById("upsy_wc_auth_success_message");
+   		const upsyAuthenticationBlock = document.getElementById("upsy_wc_auth_block");
+		if (upsy_wc_auth.success === '1') {
+			successMessageSelector.style.display = "block";
+       		upsyAuthenticationBlock.style.display = "none";
+          	store_upsy_wc_auth_confirmation();
+           return true;
+        } 
+	}
 
-		if (urlParams.has("success")) {
-            successMessageSelector.style.display = "block";
-            upsyAuthenticationBlock.style.display = "none";
-            store_upsy_wc_auth_confirmation();
-            return true;
-        } else {
-             successMessageSelector.style.display = "none";
-             return false;
-        }
+	function print_upsy_wooCommerce_authentication_error_message(status=true) {
+		const errorMessageSelector = document.getElementById("upsy_wc_auth_error_message");
+		if (status) {
+			errorMessageSelector.style.display = "block";
+		} else {
+			errorMessageSelector.style.display = "none";
+		}
 	}
 
 	async function send_wc_authentication_request(){
@@ -37,6 +40,7 @@
 			}
 		} catch (error) {
 			console.log(error);
+			print_upsy_wooCommerce_authentication_error_message();
 		}
 	}
 
@@ -54,6 +58,7 @@
 	function init() {
     	handle_upsy_wc_authentication();
 		print_upsy_wooCommerce_authentication_success_message();
+		print_upsy_wooCommerce_authentication_error_message(false);
 	}
 
 	window.addEventListener('load', init);
