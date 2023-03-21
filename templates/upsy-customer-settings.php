@@ -29,6 +29,9 @@
 	<div class="notice notice-success is-dismissible" id="upsy_wc_auth_success_message" style="display: none;">
 		<p>Store succesfully authorized - welcome to using Upsy! Your Upsy installation is now in progress in our systems. The Upsy team will get back to you when the setup is done, and your store is ready to be used.</p>
 	</div>
+	<div class="notice notice-error is-dismissible" id="upsy_wc_auth_error_message" style="display:none">
+		<p>Sorry authentication failed.Please try again.</p>
+	</div>
 	<?php 
 		if(empty(get_option('isUpsyWcAuthSuccess'))){
 			?>
