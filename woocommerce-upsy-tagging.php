@@ -279,7 +279,7 @@ class WC_upsy_Tagging
 	 */
 	function upsy_customer_settings()
 	{
-			$page = $_GET['page'];
+		$page = $_GET['page'];
 		$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
 		$is_wc_auth_redirect = isset($page) && $page == $this->plugin_name && isset($_GET['user_id']);
 		add_action('admin_notices', array($this, 'upsy_settings_messages'));
@@ -296,7 +296,7 @@ class WC_upsy_Tagging
 		
 	}
 	
-	public function upsy_settings_messages($error_message)
+	public function upsy_settings_messages($data)
 	{
 		$err_code = esc_attr('upsy_settings_customer_id');
 		$setting_field = 'upsy_settings_customer_id';
