@@ -1,0 +1,135 @@
+/*
+	Plugin Name: UPSY for WooCommerce
+	Plugin URI: https://upsyshopping.com
+	Description: Enables UPSY for WooCommerce.
+	Author: Upsy Company Oy
+	Version: 2.1.0
+	License: GPL3
+*/
+/**
+ * plugin css file.
+ */
+ #upsy-setting-wrapper{
+	--primary-background:#fff;
+	--primary-color: #000;
+	--form-wrapper-border-color: #e5e5e9;
+	--authorize-btn-bg: #007c89;
+	--authorize-btn-bg_hover: #006570;
+	--authorization-text-color: tomato;
+	--muted-color: rgb(115 115 115);
+ }
+ #upsy-banner-section{
+	width: 100%;
+	background-color: #fdf7ea;
+	height: 150px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+ }
+ #upsy-banner-section img {
+	height: 130px;
+	width: 130px;
+	display: block;
+ }
+ #upsy-setting-section {
+	box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+	background-color: var(--primary-background);
+	padding: 10px 4px 2px 10px;
+	margin-top: 10px;
+	box-sizing: border-box;
+ }
+ #upsy-setting-section .title{ 
+	margin:0px 0px 10px;
+	text-transform: uppercase;
+ }
+ #upsy-setting-section .description{ 
+	margin:0px 0px 10px;
+	color: var(--primary-color);
+	line-height: 1.6;
+	font-size: 0.9rem;
+ }
+ #upsy-setting-section .link {
+	text-underline-offset: 3.4px;
+ }
+ #upsy-setting-section .max-w-760 {
+	width: 100%;
+	max-width: 760px;
+ }
+ #upsy-setting-section .authorization-text {
+	font-size: 1rem;
+	font-weight: 500;
+	text-transform: lowercase;
+	color: var(--authorization-text-color);
+ }
+ #upsy-setting-section .authorization-text::first-letter {
+	text-transform: uppercase;
+ }
+ #upsy-setting-section .authorization-button {
+	display: inline-block;
+	outline: none;
+	cursor: pointer;
+	font-weight: 500;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	height: 36px;
+	line-height: 34px;
+	font-size: 14px;
+	color: #ffffff;
+	background-color: var(--authorize-btn-bg);
+	transition: background-color 0.2s ease-in-out 0s, opacity 0.2s ease-in-out 0s;
+	padding: 0 18px;
+	width: 100%;
+ }
+ #upsy-setting-section .authorization-button:hover {
+	color: #ffffff;
+	background-color: var(--authorize-btn-bg_hover);
+}
+
+#upsy-setting-section .form-wrapper {
+	/* background: rgb(145, 104, 104); */
+	padding: 0 4px 0px 8px;
+	border: 1px solid var(--form-wrapper-border-color);
+	margin: 30px 0px 10px;
+	position: relative;
+}
+#upsy-setting-section .form-wrapper .form-title {
+	display: block;
+	position: absolute;
+	margin: 0;
+    padding: 0 4px;
+    top: -6px;
+    left: 29px;
+	line-height: 0.8;
+	background-color: var(--primary-background);
+	font-weight: bold;
+	text-transform: uppercase;
+}
+#upsy-setting-section .form-wrapper input[type="text"] {
+	width: 100%;
+	padding: 6px 12px;
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #212529;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #ced4da;
+	appearance: none;
+	border-radius: 4px;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+#upsy-setting-section .form-wrapper input[type="text"] + small {
+	color: var(--muted-color);
+}
+#upsy-setting-section .form-wrapper input[type="text"]:disabled {
+	border: 2px solid #dee1e2;
+	background: #dee1e2;
+}
+#upsy-setting-section .form-wrapper input[type="text"]:focus {
+	color: #212529;
+	background-color: #fff;
+	border-color: #86b7fe;
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+}

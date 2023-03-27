@@ -257,6 +257,7 @@ class WC_upsy_Tagging
 	 * @since 1.0.0
 	 */
 	function admin_enqueue_scripts_callback($hook){
+		wp_enqueue_style('upsy-plugin-style', plugin_dir_url( __FILE__ ). "assets/css/upsy-plugin-style.css");
 		wp_enqueue_script( 'ajax-script', plugin_dir_url( __FILE__ ). "assets/js/main.js" , array('jquery'));
 		wp_localize_script('ajax-script', 'upsy_wc_auth', array('ajax_url' => admin_url('admin-ajax.php'), 'host' => get_site_url(), 'environment' => wp_get_environment_type(), 'return_url' => esc_url(menu_page_url($this->get_plugin_name(), false))));
 	}
@@ -292,7 +293,7 @@ class WC_upsy_Tagging
 			update_option('isUpsyWcAuthSuccess', '1');
 			do_action('admin_notices', ['type' => 'success', 'message' => 'Store successfully authorized - welcome to using Upsy! Your Upsy installation is now in progress in our systems. The Upsy team will get back to you when the setup is done, and your store is ready to be used']);
 		}
-		$this->render(self::TEMPLATE_CUSTOMER_SETTINGS, []);
+		$this->render(self::TEMPLATE_CUSTOMER_SETTINGS, array('plugin_dir_url'=> plugin_dir_url(__FILE__)));
 		
 	}
 	
@@ -313,7 +314,7 @@ class WC_upsy_Tagging
 	public function upsy_display_customer_settings()
 	{
 		
-		echo '<p>Enter your upsy customer id.</p>';
+		echo '<p class="form-title">Enter your upsy customer id.</p>';
 	}
 	
 	public function populate_setting_fields()
@@ -438,20 +439,11 @@ class WC_upsy_Tagging
 
 			if($value == ''){
 				$value = wp_get_environment_type();
-				echo "Variable defined at wp-config [production/staging/local]. Example: define('WP_ENVIRONMENT_TYPE', 'staging');<br/>";
 			}
 			//disabled for now to work with URL
 			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" disabled="disabled"/>';
-
+			echo "<small>Variable defined at wp-config [production/staging/local]. Example: define('WP_ENVIRONMENT_TYPE', 'staging')<small/>";
 		}else if($args['id'] == 'upsy_settings_jsurl'){
-
-			if(wp_get_environment_type() == 'local'){
-				echo "Default for this: " . self::UPSYJS_URL_LOCAL . "<br/>";
-			}else if(wp_get_environment_type() == 'staging'){
-				echo "Default for this: " . self::UPSYJS_URL_STAGING . "<br/>";
-			}else{
-				echo "Default for this: " . self::UPSYJS_URL_PRODUCTION . "<br/>";
-			}
 
 			/*
 			if($value == ''){
@@ -466,10 +458,18 @@ class WC_upsy_Tagging
 			}
 			*/
 			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '"/>';
+			if(wp_get_environment_type() == 'local'){
+				echo "<small>Default for this: " . self::UPSYJS_URL_LOCAL . "<small/>";
+			}else if(wp_get_environment_type() == 'staging'){
+				echo "<small>Default for this: " . self::UPSYJS_URL_STAGING . "<small/>";
+			}else{
+				echo "<small>Default for this: " . self::UPSYJS_URL_PRODUCTION . "<small/>";
+			}
 
 		}else{
 			//normal input
 			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" />';
+			echo '<small>No special characters and space are allowed<small/>';
 		}
 
 	}
