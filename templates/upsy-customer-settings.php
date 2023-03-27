@@ -34,7 +34,7 @@
 				if(empty(get_option('isUpsyWcAuthSuccess'))){
 					?>
 					<div id="upsy_wc_auth_block">
-							<p class="authorization-text">Upsy needs to be authorized before it can be used - Click here to give Upsy read access to your store.</p>
+							<p class="authorization-text">Upsy needs to be authorized before it can be used. Click “Authorize Upsy” to give it read-only access to your store’s product catalog</p>
 							<button type='button' name='submit' class='authorization-button' id="upsy_wc_auth_connection">
 								Authorize Upsy
 							</button>

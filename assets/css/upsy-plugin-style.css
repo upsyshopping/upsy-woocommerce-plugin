@@ -59,11 +59,7 @@
  #upsy-setting-section .authorization-text {
 	font-size: 1rem;
 	font-weight: 500;
-	text-transform: lowercase;
 	color: var(--authorization-text-color);
- }
- #upsy-setting-section .authorization-text::first-letter {
-	text-transform: uppercase;
  }
  #upsy-setting-section .authorization-button {
 	display: inline-block;
