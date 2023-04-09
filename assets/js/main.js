@@ -19,6 +19,26 @@ async function send_wc_authentication_request() {
   }
 }
 
+function attach_tenantId_to_upsy_customer_id_field() {
+  const tenantIdInputBoxSelector = document.getElementById(
+    "upsy_settings_customer_id"
+  );
+  if (!tenantIdInputBoxSelector) {
+    return false;
+  } else {
+    const url = window.location.href;
+    const params = new URLSearchParams(url);
+    const tenantId = params.get("user_id") || upsy_wc_auth["user_id"];
+    if (tenantId) {
+      tenantIdInputBoxSelector.disabled = true;
+      tenantIdInputBoxSelector.value = tenantId;
+      return true;
+    } else {
+      tenantIdInputBoxSelector.disabled = false;
+    }
+  }
+}
+
 function handle_upsy_wc_authentication() {
   const buttonSelector = document.getElementById("upsy_wc_auth_connection");
   if (!buttonSelector) {
@@ -31,6 +51,7 @@ function handle_upsy_wc_authentication() {
 
 function init() {
   handle_upsy_wc_authentication();
+  attach_tenantId_to_upsy_customer_id_field();
 }
 
 window.addEventListener("load", init);
