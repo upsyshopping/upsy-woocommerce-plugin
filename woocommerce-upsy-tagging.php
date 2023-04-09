@@ -435,6 +435,8 @@ class WC_upsy_Tagging
 		
 		//only input=text for now
 
+		$user_id = get_option('user_id');
+
 		$value = ($args['value_type'] == 'serialized') ? serialize($wp_data_value) : $wp_data_value;
 
 		if($args['id'] == 'upsy_settings_environment'){
@@ -469,7 +471,9 @@ class WC_upsy_Tagging
 				echo "<small>Default for this: " . self::UPSYJS_URL_PRODUCTION . "<small/>";
 			}
 
-		}else{
+		} else if($user_id){
+		 	echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" disabled value="' . esc_attr($user_id) . '" />';	
+		} else {
 			//normal input
 			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" />';
 			echo '<small>No special characters and space are allowed<small/>';
