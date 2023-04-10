@@ -19,6 +19,7 @@ async function send_wc_authentication_request() {
   }
 }
 
+
 function handle_upsy_wc_authentication() {
   const buttonSelector = document.getElementById("upsy_wc_auth_connection");
   if (!buttonSelector) {

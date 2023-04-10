@@ -290,6 +290,9 @@ class WC_upsy_Tagging
 		}else if($is_wc_auth_redirect && $_GET['success'] == '0'){
 			do_action('admin_notices', ['type' => 'error', 'message' => 'Upsy WooCommerce Authentication Failed.Please try again']);
 		}else if($is_wc_auth_redirect && $_GET['success'] == '1'){
+			if($_GET['user_id']){
+				update_option('upsy_settings_customer_id', $_GET['user_id']);
+			}
 			update_option('isUpsyWcAuthSuccess', '1');
 			do_action('admin_notices', ['type' => 'success', 'message' => 'Store successfully authorize - welcome to using Upsy! Your Upsy installation is now being progressed by the team, we will get back to you when it is ready to be used in your store']);
 		}
@@ -462,13 +465,14 @@ class WC_upsy_Tagging
 				echo "<small>Default for this: " . self::UPSYJS_URL_LOCAL . "<small/>";
 			}else if(wp_get_environment_type() == 'staging'){
 				echo "<small>Default for this: " . self::UPSYJS_URL_STAGING . "<small/>";
-			}else{
+			} else {
 				echo "<small>Default for this: " . self::UPSYJS_URL_PRODUCTION . "<small/>";
 			}
 
-		}else{
+		} else {
 			//normal input
-			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" />';
+			$disabled = !empty($value) ? 'disabled':'';
+			echo sprintf("<input %s type='%s' id='%s' name='%s' size='40' value='%s' />",$disabled, $args['subtype'], $args['id'], $args['name'], esc_attr($value));
 			echo '<small>No special characters and space are allowed<small/>';
 		}
 
