@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - upsy-test
+      - gdrive-upload-workflow-test
 
 jobs:
   zip_and_upload_to_gdrive:
