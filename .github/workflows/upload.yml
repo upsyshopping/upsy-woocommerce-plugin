@@ -1,0 +1,43 @@
+name: Archive and Upload to Google Drive
+on:
+  push:
+    branches:
+      - main
+      - upsy-test
+
+jobs:
+  zip_and_upload_to_gdrive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # - name: Setup gcloud
+      #   uses: google-github-actions/setup-gcloud@master
+      #   with:
+      #     service_account_key: ${{ secrets.GCP_SA_KEY }}
+      #     export_default_credentials: true
+
+      # - name: Move build.zip to old folder
+      #   run: |
+      #     gsutil mv gs://${{ secrets.BUCKET_NAME }}/woo-com-plugin/build.zip gs://${{ secrets.BUCKET_NAME }}/woo-com-plugin/old/
+
+      # - name: Make Directory Structure
+      #   run: |
+      #     mkdir -p woo-com-plugin
+
+      - name: Archive files
+        run: |
+          sudo apt-get update
+          sudo apt-get install zip
+          zip -r archive.zip *
+
+      - name: Upload to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          filename: "archive.zip"
+          folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID}}
+          name: "upsy-woo-plugin.zip" # optional string
+          overwrite: "true" # optional boolean
