@@ -306,7 +306,7 @@ class WC_upsy_Tagging
 
 	}
 
-	public function check_wc_discount_related_plugins($target_plugin_name='Woo Discount Rules', $logged_in_user=true) {
+	public function check_wc_discount_related_plugins($target_plugin_name='Woo Discount Rules', $logged_in_user=false) {
 		if ( ! function_exists( 'get_plugins' ) ) {
        		 require_once ABSPATH . 'wp-admin/includes/plugin.php';
     	}
