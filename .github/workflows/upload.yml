@@ -64,19 +64,22 @@ jobs:
             sudo apt-get install -y coreutils
           fi
 
+      - name: List cache contents
+        run: |
+          ls -R ${{ runner.workspace }}/.cache
+
       - name: Install prasmussen/gdrive
         run: |
-          if ! test -e /usr/bin/gdrive; then
-            echo -e "gdrive not exits\n"
-            echo -e "Downloading gdrive from ${{env.GDRIVE_DOWNLOAD_LINK}})\n"
             wget -O gdrive ${{env.GDRIVE_DOWNLOAD_LINK}}
             tar -xzvf gdrive
             chmod +x gdrive
-            sudo mv -f gdrive /usr/bin/
-            
-          else
-            echo "Gdrive already exists.."
-          fi
+            mv -f gdrive /usr/local/bin/
+      - name: Cache gdrive
+        uses: actions/cache@v2
+        with:
+          path: |
+            /usr/local/bin/gdrive
+          key: ${{ runner.os }}-gdrive
     
       - name: Decode and write secret to file
         run: |
