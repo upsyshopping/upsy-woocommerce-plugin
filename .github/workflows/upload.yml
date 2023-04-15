@@ -54,8 +54,21 @@ jobs:
           tar -xzvf gdrive_2.1.1_linux_386.tar.gz
           chmod +x gdrive
           fi
-          ls -lah
-          ./gdrive about
+      - name: Install base64 if not available
+        run: |
+          if ! which base64 >/dev/null 2>&1; then
+            echo "base64 is not available"
+            sudo apt-get update
+            sudo apt-get install -y coreutils
+          fi
+      - name: Decode and write secret to file
+        run: |
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode > key.json
+          cat key.json
+      - name: Upload acrhive
+        run: |
+          ./gdrive --service-account key.json archive.zip
+          echo "Upload completed"
 
           
 
