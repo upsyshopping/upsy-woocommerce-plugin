@@ -67,7 +67,7 @@ jobs:
           cat key.json
       - name: Upload acrhive
         run: |
-          ./gdrive --service-account key.json archive.zip
+          ./gdrive upload --service-account key.json archive.zip
           echo "Upload completed"
 
           
