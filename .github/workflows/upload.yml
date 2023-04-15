@@ -56,7 +56,8 @@ jobs:
           fi
           echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > key.json
           cat key.json
-          gdrive upload --service-account key.json  archive.zip
+          echo "cat complete"
+          ./gdrive upload --service-account key.json  archive.zip
 
           
 
