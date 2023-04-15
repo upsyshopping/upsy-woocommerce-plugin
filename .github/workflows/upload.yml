@@ -54,10 +54,7 @@ jobs:
           tar -xzvf gdrive_2.1.1_linux_386.tar.gz
           chmod +x gdrive
           fi
-          echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > key.json
-          cat key.json
-          echo "cat complete"
-          ./gdrive upload --service-account key.json  archive.zip
+          ls -lah
 
           
 
