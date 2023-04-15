@@ -30,13 +30,14 @@ jobs:
 
       - name: Archive files
         run: |
-          zip -r $ARTIFACT_NAME *
+          zip -r ${{env.ARTIFACT_NAME}} *
+          ls -lah
 
       - name: upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: $ARTIFACT_NAME
-          path: $ARTIFACT_NAME
+          name: ${{env.ARTIFACT_NAME}}
+          path: ${{env.ARTIFACT_NAME}}
   
   upload:
     needs: [build]
@@ -46,7 +47,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: $ARTIFACT_NAME
+          name: ${{env.ARTIFACT_NAME}}
           path: .
       
       - name: Install wget if not exists
@@ -67,27 +68,27 @@ jobs:
         run: |
           if ! test -e /usr/bin/gdrive; then
             echo -e "gdrive not exits\n"
-            echo -e "Downloading gdrive from $GDRIVE_DOWNLOAD_LINK\n"
-            wget -O gdrive $GDRIVE_DOWNLOAD_LINK
+            echo -e "Downloading gdrive from ${{env.GDRIVE_DOWNLOAD_LINK}})\n"
+            wget -O gdrive ${{env.GDRIVE_DOWNLOAD_LINK}}
             tar -xzvf gdrive
             mv -f gdrive /usr/bin/
             chmod +x /usr/bin/gdrive
           else
-            echo "Gdrive exists.."
+            echo "Gdrive already exists.."
           fi
     
       - name: Decode and write secret to file
         run: |
-          cat ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > $KEY_FILENAME
+          cat ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > ${{env.KEY_FILENAME}}
       
       - name: Upload acrhive to google drive
         run: |
           which gdrive
-          echo -e "which gdrive\n"
-          gdrive list --config $(pwd) --service-account $KEY_FILENAME --query ""
-          gdrive upload  --config $(pwd) --service-account $KEY_FILENAME -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile_new.zip $ARTIFACT_NAME
-          gdrive list --config $(pwd) --service-account $KEY_FILENAME --query ""
+          echo -e "which gdrive \n"
+          gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} --query ""
+          gdrive upload  --config $(pwd) --service-account ${{env.KEY_FILENAME}} -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile_new.zip ${{env.ARTIFACT_NAME}}
+          gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} --query ""
     
       - name : Remove generated files(key, artifact)
         run: |
-          rm -rf $KEY_FILENAME $ARTIFACT_NAME
+          rm -rf ${{env.KEY_FILENAME}} ${{env.ARTIFACT_NAME}}
