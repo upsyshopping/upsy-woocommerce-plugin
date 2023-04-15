@@ -68,8 +68,8 @@ jobs:
       - name: Upload acrhive to google drive
         run: |
           pwd
-          ls -la /home/runner
-          ./gdrive upload --service-account /home/runner/key.json --parent ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}  home/runner/archive.zip
+          ls -la $pwd
+          ./gdrive upload --service-account $pwd/key.json --parent ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}  $pwd/archive.zip
           echo "Upload completed"
 
           
