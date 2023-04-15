@@ -16,12 +16,16 @@ jobs:
         with:
           ref: master
 
+      - name: Install zip package if not available
+        run: |
+          if ! which zip > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y zip
+          else
+            echo "Zip package already available"
+          fi
       - name: Archive files
         run: |
-          sudo apt-get update
-          sudo apt-get install zip
-          echo "which zip"
-          which zip
           echo "Start acrhive master branch"
           zip -r archive.zip *
           echo "Complete archive of master branch"
@@ -43,21 +47,24 @@ jobs:
           name: upsy-woo-plugin
           path: .
       
-      - name: Install wget
+      - name: Install wget if not exists
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
-          echo "which wget"
-          which wget
+          if ! which wget > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y wget
+            echo "which wget"
+          else
+            echo "wget already available"
+          fi
       
       - name: Install base64 if not available
         run: |
-          if ! which base64 >/dev/null 2>&1; then
+          if ! which base64 >/dev/null; then
             echo "base64 is not available"
             sudo apt-get update
             sudo apt-get install -y coreutils
-            echo "which base64"
-            which base64
+          else
+            echo "base64 already available"
           fi
 
       - name: Install prasmussen/gdrive
@@ -77,9 +84,9 @@ jobs:
       
       - name: Upload acrhive to google drive
         run: |
-          echo "Before upload directory list:"
+          echo "Before upload directory list...."
           ./gdrive list --config $(pwd) --service-account key.json --query ""
-          ./gdrive upload  --config $(pwd) --service-account key.json -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile.zip archive.zip
+          ./gdrive upload  --config $(pwd) --service-account key.json -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile_new.zip archive.zip
           echo "After upload directory list:"
           ./gdrive list --config $(pwd) --service-account key.json --query ""
           echo "Upload completed"
