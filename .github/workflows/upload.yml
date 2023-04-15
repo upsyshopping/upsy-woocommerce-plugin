@@ -20,6 +20,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install zip
+          echo "which zip"
+          which zip
           echo "Start acrhive master branch"
           zip -r archive.zip *
           echo "Complete archive of master branch"
@@ -42,7 +44,11 @@ jobs:
           path: .
       
       - name: Install wget
-        run: sudo apt-get update && sudo apt-get install -y wget
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          echo "which wget"
+          which wget
       
       - name: Install base64 if not available
         run: |
@@ -50,6 +56,8 @@ jobs:
             echo "base64 is not available"
             sudo apt-get update
             sudo apt-get install -y coreutils
+            echo "which base64"
+            which base64
           fi
 
       - name: Install prasmussen/gdrive
