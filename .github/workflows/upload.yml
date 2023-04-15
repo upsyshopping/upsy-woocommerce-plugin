@@ -66,13 +66,13 @@ jobs:
 
       - name: Install prasmussen/gdrive
         run: |
-          if ! test -e /usr/local/bin/gdrive; then
+          if ! test -e /usr/bin/gdrive; then
             echo -e "gdrive not exits\n"
             echo -e "Downloading gdrive from ${{env.GDRIVE_DOWNLOAD_LINK}})\n"
             wget -O gdrive ${{env.GDRIVE_DOWNLOAD_LINK}}
             tar -xzvf gdrive
             chmod +x gdrive
-            mv -f gdrive /usr/local/bin/
+            sudo mv -f gdrive /usr/bin/
             
           else
             echo "Gdrive already exists.."
@@ -86,9 +86,7 @@ jobs:
         run: |
           which gdrive
           echo -e "which gdrive \n"
-          gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} --query ""
-          gdrive update  --config $(pwd) --service-account ${{env.KEY_FILENAME}} -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name "test-" + ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
-          gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} --query ""
+          gdrive upload  --config $(pwd) --service-account ${{env.KEY_FILENAME}} --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
     
       - name : Remove generated files(key, artifact)
         run: |
