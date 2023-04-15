@@ -87,7 +87,7 @@ jobs:
           which gdrive
           echo -e "which gdrive \n"
           gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} --query ""
-          gdrive upload  --config $(pwd) --service-account ${{env.KEY_FILENAME}} -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile_new.zip ${{env.ARTIFACT_NAME}}
+          gdrive update  --config $(pwd) --service-account ${{env.KEY_FILENAME}} -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name "test-" + ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
           gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} --query ""
     
       - name : Remove generated files(key, artifact)
