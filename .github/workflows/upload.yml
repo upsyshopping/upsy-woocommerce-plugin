@@ -65,9 +65,10 @@ jobs:
         run: |
           echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode > key.json
           cat key.json
-      - name: Upload acrhive
+      - name: Upload acrhive to google drive
         run: |
-          ./gdrive upload --service-account key.json archive.zip
+          ls $${{github.workspace}}
+          ./gdrive upload --service-account ${{ github.workspace }}/key.json --parent ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}  ${{ github.workspace }}/archive.zip
           echo "Upload completed"
 
           
