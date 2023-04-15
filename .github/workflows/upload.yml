@@ -6,8 +6,13 @@ on:
       - master
       - gdrive-upload-workflow-test
 
+env:
+  ARTIFACT_NAME: upsy-woocommerce-plugin.zip
+  GDRIVE_DOWNLOAD_LINK: https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
+  KEY_FILENAME: key.json
+
 jobs:
-  zip-master-branch:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,30 +26,27 @@ jobs:
           if ! which zip > /dev/null; then
             sudo apt-get update
             sudo apt-get install -y zip
-          else
-            echo "Zip package already available"
           fi
+
       - name: Archive files
         run: |
-          echo "Start acrhive master branch"
-          zip -r archive.zip *
-          echo "Complete archive of master branch"
+          zip -r $ARTIFACT_NAME *
 
       - name: upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: upsy-woo-plugin
-          path: archive.zip
+          name: $ARTIFACT_NAME
+          path: $ARTIFACT_NAME
   
-  download-artifact-and-upload-to-google-drive:
-    needs: [zip-master-branch]
+  upload:
+    needs: [build]
     runs-on: ubuntu-latest
 
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: upsy-woo-plugin
+          name: $ARTIFACT_NAME
           path: .
       
       - name: Install wget if not exists
@@ -52,55 +54,40 @@ jobs:
           if ! which wget > /dev/null; then
             sudo apt-get update
             sudo apt-get install -y wget
-            echo "which wget"
-          else
-            echo "wget already available"
           fi
       
       - name: Install base64 if not available
         run: |
           if ! which base64 >/dev/null; then
-            echo "base64 is not available"
             sudo apt-get update
             sudo apt-get install -y coreutils
-          else
-            echo "base64 already available"
           fi
 
       - name: Install prasmussen/gdrive
         run: |
-          if [ -e ./gdrive ]; then
-          echo "The file gdrive exists in the current directory."
+          if ! test -e /usr/bin/gdrive; then
+            echo -e "gdrive not exits\n"
+            echo -e "Downloading gdrive from $GDRIVE_DOWNLOAD_LINK\n"
+            wget -O gdrive $GDRIVE_DOWNLOAD_LINK
+            tar -xzvf gdrive
+            mv -f gdrive /usr/bin/
+            chmod +x /usr/bin/gdrive
           else
-          echo "The file gdrive does not exist in the current directory."
-          wget https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
-          tar -xzvf gdrive_2.1.1_linux_386.tar.gz
-          chmod +x gdrive
+            echo "Gdrive exists.."
           fi
     
       - name: Decode and write secret to file
         run: |
-          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode > key.json
+          cat ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > $KEY_FILENAME
       
       - name: Upload acrhive to google drive
         run: |
-          echo "Before upload directory list...."
-          ./gdrive list --config $(pwd) --service-account key.json --query ""
-          ./gdrive upload  --config $(pwd) --service-account key.json -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile_new.zip archive.zip
-          echo "After upload directory list:"
-          ./gdrive list --config $(pwd) --service-account key.json --query ""
-          echo "Upload completed"
+          which gdrive
+          echo -e "which gdrive\n"
+          gdrive list --config $(pwd) --service-account $KEY_FILENAME --query ""
+          gdrive upload  --config $(pwd) --service-account $KEY_FILENAME -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile_new.zip $ARTIFACT_NAME
+          gdrive list --config $(pwd) --service-account $KEY_FILENAME --query ""
     
       - name : Remove generated files(key, artifact)
         run: |
-          rm -rf key.json archive.zip
-
-          
-
-
-      # - name: Upload to gdrive
-      #   uses: willo32/google-drive-upload-action@v1
-      #   with: 
-      #     target: archive.zip
-      #     credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          
+          rm -rf $KEY_FILENAME $ARTIFACT_NAME
