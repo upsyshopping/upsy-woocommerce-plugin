@@ -71,6 +71,8 @@ jobs:
           ls -la $pwd
           mkdir -p /home/runner/.gdrive && mv -f key.json /home/runner/.gdrive/
           mv -f archive.zip /home/runner/.gdrive/
+
+          ./gdrive upload --service-account key.json archive.zip
           ./gdrive list --service-account key.json
           echo "Upload completed"
 
