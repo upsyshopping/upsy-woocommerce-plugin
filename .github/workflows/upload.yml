@@ -80,7 +80,7 @@ jobs:
     
       - name: Decode and write secret to file
         run: |
-          echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > ${{env.KEY_FILENAME}}
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode > ${{env.KEY_FILENAME}}
       
       - name: Upload acrhive to google drive
         run: |
