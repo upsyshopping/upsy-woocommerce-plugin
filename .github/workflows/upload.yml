@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Log CPU architecture
-        run: |
-          echo "CPU architecture is ${{ matrix.arch }}"
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -23,9 +20,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install zip
-          echo "Start acrhive master branch ..\n"
+          echo "Start acrhive master branch"
           zip -r archive.zip *
-          echo "Complete archive of master branch..\n"
+          echo "Complete archive of master branch"
 
       - name: upload artifact
         uses: actions/upload-artifact@v2
@@ -52,15 +49,6 @@ jobs:
       #     wget -O gdrive  https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_amd64.tar.gz
       #     tar -xzvf gdrive
       #     chmod +x gdrive
-     
-      - name: Print credentials
-        run: |
-          echo "Google drive secrets\n"
-          echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          echo "\n\n"
-          echo ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-          echo "\n\n"
-          echo "Start uploading....\n"
       - name: Upload to gdrive
         uses: willo32/google-drive-upload-action@v1
         with: 
