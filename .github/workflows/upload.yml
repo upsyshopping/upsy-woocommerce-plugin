@@ -66,13 +66,14 @@ jobs:
 
       - name: Install prasmussen/gdrive
         run: |
-          if ! test -e /usr/bin/gdrive; then
+          if ! test -e /usr/local/bin/gdrive; then
             echo -e "gdrive not exits\n"
             echo -e "Downloading gdrive from ${{env.GDRIVE_DOWNLOAD_LINK}})\n"
             wget -O gdrive ${{env.GDRIVE_DOWNLOAD_LINK}}
             tar -xzvf gdrive
-            mv -f gdrive /usr/bin/
-            chmod +x /usr/bin/gdrive
+            chmod +x gdrive
+            sudo mv -f gdrive /usr/local/bin/
+            
           else
             echo "Gdrive already exists.."
           fi
