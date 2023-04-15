@@ -41,17 +41,29 @@ jobs:
           name: upsy-woo-plugin
           path: .
       
-      # - name: Install wget
-      #   run: sudo apt-get update && sudo apt-get install -y wget
-      # - name: Install gdrive
-      #   if: "! test -f gdrive"
-      #   run: |
-      #     wget -O gdrive  https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_amd64.tar.gz
-      #     tar -xzvf gdrive
-      #     chmod +x gdrive
-      - name: Upload to gdrive
-        uses: willo32/google-drive-upload-action@v1
-        with: 
-          target: archive.zip
-          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          parent_folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }} 
+      - name: Install wget
+        run: sudo apt-get update && sudo apt-get install -y wget
+      - name: Install gdrive
+      
+        run: |
+          if [ -e gdrive ]; then
+          echo "The file gdrive exists in the current directory."
+          else
+          echo "The file gdrive does not exist in the current directory."
+          wget https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
+          tar -xzvf gdrive
+          chmod +x gdrive
+          fi
+          echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > key.json
+          cat key.json
+          gdrive upload --service-account key.json  archive.zip
+
+          
+
+
+      # - name: Upload to gdrive
+      #   uses: willo32/google-drive-upload-action@v1
+      #   with: 
+      #     target: archive.zip
+      #     credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          
