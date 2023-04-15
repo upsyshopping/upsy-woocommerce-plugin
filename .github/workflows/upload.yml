@@ -43,17 +43,7 @@ jobs:
       
       - name: Install wget
         run: sudo apt-get update && sudo apt-get install -y wget
-      - name: Install gdrive
       
-        run: |
-          if [ -e gdrive ]; then
-          echo "The file gdrive exists in the current directory."
-          else
-          echo "The file gdrive does not exist in the current directory."
-          wget https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
-          tar -xzvf gdrive_2.1.1_linux_386.tar.gz
-          chmod +x gdrive
-          fi
       - name: Install base64 if not available
         run: |
           if ! which base64 >/dev/null 2>&1; then
@@ -61,20 +51,34 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y coreutils
           fi
+
+      - name: Install prasmussen/gdrive
+        run: |
+          if [ -e ./gdrive ]; then
+          echo "The file gdrive exists in the current directory."
+          else
+          echo "The file gdrive does not exist in the current directory."
+          wget https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
+          tar -xzvf gdrive_2.1.1_linux_386.tar.gz
+          chmod +x gdrive
+          fi
+    
       - name: Decode and write secret to file
         run: |
           echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode > key.json
-          cat key.json
+      
       - name: Upload acrhive to google drive
         run: |
-          pwd
-          ls -la $pwd
-          mkdir -p /home/runner/.gdrive && mv -f key.json /home/runner/.gdrive/
-          mv -f archive.zip /home/runner/.gdrive/
-
-          ./gdrive upload --service-account key.json /home/runner/.gdrive/archive.zip
-          ./gdrive list --service-account key.json
+          echo "Before upload directory list:"
+          ./gdrive list --config $(pwd) --service-account key.json --query ""
+          ./gdrive upload  --config $(pwd) --service-account key.json -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name myfile.zip archive.zip
+          echo "After upload directory list:"
+          ./gdrive list --config $(pwd) --service-account key.json --query ""
           echo "Upload completed"
+    
+      - name : Remove generated files(key, artifact)
+        run: |
+          rm -rf key.json archive.zip
 
           
 
