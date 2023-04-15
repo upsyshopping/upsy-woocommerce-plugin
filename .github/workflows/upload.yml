@@ -69,7 +69,7 @@ jobs:
         run: |
           pwd
           ls -la $pwd
-          mv key.json /home/runner/.gdrive/
+          mkdir -p /home/runner/.gdrive && mv key.json /home/runner/.gdrive/
           ./gdrive upload --service-account key.json --parent ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}  $pwd/archive.zip
           echo "Upload completed"
 
