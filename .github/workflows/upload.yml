@@ -3,27 +3,67 @@ on:
   push:
     branches:
       - main
+      - master
       - gdrive-upload-workflow-test
 
 jobs:
-  zip_and_upload_to_gdrive:
+  zip-master-branch:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Log CPU architecture
+        run: |
+          echo "CPU architecture is ${{ matrix.arch }}"
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: master
 
       - name: Archive files
         run: |
           sudo apt-get update
           sudo apt-get install zip
+          echo "Start acrhive master branch ..\n"
           zip -r archive.zip *
+          echo "Complete archive of master branch..\n"
 
-      - name: Upload to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
+      - name: upload artifact
+        uses: actions/upload-artifact@v2
         with:
+          name: upsy-woo-plugin
+          path: archive.zip
+  
+  download-artifact-and-upload-to-google-drive:
+    needs: [zip-master-branch]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: upsy-woo-plugin
+          path: .
+      
+      # - name: Install wget
+      #   run: sudo apt-get update && sudo apt-get install -y wget
+      # - name: Install gdrive
+      #   if: "! test -f gdrive"
+      #   run: |
+      #     wget -O gdrive  https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_amd64.tar.gz
+      #     tar -xzvf gdrive
+      #     chmod +x gdrive
+     
+      - name: Print credentials
+        run: |
+          echo "Google drive secrets\n"
+          echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          echo "\n\n"
+          echo ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          echo "\n\n"
+          echo "Start uploading....\n"
+      - name: Upload to gdrive
+        uses: willo32/google-drive-upload-action@v1
+        with: 
+          target: archive.zip
           credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          filename: "archive.zip"
-          folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID}}
-          name: "upsy-woo-plugin.zip" # optional string
-          overwrite: "true" # optional boolean
+          parent_folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }} 
