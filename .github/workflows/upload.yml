@@ -84,7 +84,6 @@ jobs:
       
       - name: Upload acrhive to google drive
         run: |
-          gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --query "" | grep ${{env.ARTIFACT_NAME}} 
           gdrive upload  --config $(pwd) --service-account ${{env.KEY_FILENAME}} --rewrite -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
     
       - name : Remove generated files(key, artifact)
