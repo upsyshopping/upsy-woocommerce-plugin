@@ -80,11 +80,16 @@ jobs:
     
       - name: Decode and write secret to file
         run: |
-          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode > ${{env.KEY_FILENAME}}
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
+          > ${{env.KEY_FILENAME}}
       
       - name: Upload acrhive to google drive
         run: |
-          gdrive upload  --config $(pwd) --service-account ${{env.KEY_FILENAME}} --rewrite -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
+          gdrive upload \
+          --config $(pwd) \
+          --service-account ${{env.KEY_FILENAME}} \
+          --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
+          --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
     
       - name : Remove generated files(key, artifact)
         run: |
