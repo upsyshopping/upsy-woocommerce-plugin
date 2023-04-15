@@ -72,7 +72,7 @@ jobs:
             wget -O gdrive ${{env.GDRIVE_DOWNLOAD_LINK}}
             tar -xzvf gdrive
             chmod +x gdrive
-            sudo mv -f gdrive /usr/local/bin/
+            mv -f gdrive /usr/local/bin/
             
           else
             echo "Gdrive already exists.."
@@ -80,7 +80,7 @@ jobs:
     
       - name: Decode and write secret to file
         run: |
-          cat ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > ${{env.KEY_FILENAME}}
+          echo ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }} | base64 --decode > ${{env.KEY_FILENAME}}
       
       - name: Upload acrhive to google drive
         run: |
