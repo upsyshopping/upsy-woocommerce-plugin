@@ -101,20 +101,14 @@ jobs:
           file_ids=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and mimeType != 'application/vnd.google-apps.folder'" | awk '{if (NR>1) {print $1}}')
           
           old_dir_id=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and name='old'" | awk 'NR==2{print $1}')
+          echo "old_dir_id $old_dir_id"
+          echo "fileId $file_ids"
+          gdrive upload \
+            --config $(pwd) \
+            --service-account ${{env.KEY_FILENAME}} \
+            --delete -p $old_dir_id \
+            --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
 
-      - name: Authenticate with Google
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: micro-shift-383815
-          service_account_email: upload-plugin-to-gdrive@micro-shift-383815.iam.gserviceaccount.com
-          service_account_key: 281ed8131e37a3b96731cd6148bbc5a8304891a1
-
-      - name: Move file to Google Drive
-        uses: google-github-actions/upload-to-google-drive@v3
-        with:
-          src: $file_ids
-          dest: $old_dir_id
-          move: true
       - name : Remove generated files(key, artifact)
         run: |
           rm -rf ${{env.KEY_FILENAME}} ${{env.ARTIFACT_NAME}}
