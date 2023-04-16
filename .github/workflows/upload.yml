@@ -97,13 +97,8 @@ jobs:
           # --service-account ${{env.KEY_FILENAME}} \
           # --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
           # --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
-
-          list = $(gdrive list \
-          --config $(pwd) \
-          --service-account ${{env.KEY_FILENAME}} \
-          -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents")
-
-          echo $list
+          
+          gdrive list --config $(pwd) --service-account ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}
 
       - name : Remove generated files(key, artifact)
         run: |
