@@ -104,7 +104,7 @@ jobs:
           
           for id in $file_ids; do
             echo "file id is $id"
-            gdrive update --config $(pwd) --service-account ${{env.KEY_FILENAME}} $id --parent $old_dir_id
+            gdrive upload --config $(pwd) --service-account ${{env.KEY_FILENAME}} -p $old_dir_id $id
           done
 
       - name : Remove generated files(key, artifact)
