@@ -98,7 +98,7 @@ jobs:
           # --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
           # --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
 
-          file_ids=$(list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and mimeType != 'application/vnd.google-apps.folder'" | awk '{if (NR>1) {print $1}}')
+          file_ids=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and mimeType != 'application/vnd.google-apps.folder'" | awk '{if (NR>1) {print $1}}')
           
           old_dir_id=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and name='old'" | awk 'NR==2{print $1}')
           
