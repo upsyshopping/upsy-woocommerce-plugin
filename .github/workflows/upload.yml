@@ -92,11 +92,18 @@ jobs:
       
       - name: Upload acrhive to google drive
         run: |
-          gdrive upload \
+          # gdrive upload \
+          # --config $(pwd) \
+          # --service-account ${{env.KEY_FILENAME}} \
+          # --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
+          # --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
+
+          list = $(gdrive list \
           --config $(pwd) \
           --service-account ${{env.KEY_FILENAME}} \
-          --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
-          --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
+          -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents")
+
+          echo $list
 
       - name : Remove generated files(key, artifact)
         run: |
