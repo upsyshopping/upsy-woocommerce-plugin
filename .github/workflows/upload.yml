@@ -98,13 +98,13 @@ jobs:
           # --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
           # --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
 
-          file_ids= $(list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and mimeType != 'application/vnd.google-apps.folder'" | awk '{if (NR>1) {print $1}}')
+          file_ids=$(list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and mimeType != 'application/vnd.google-apps.folder'" | awk '{if (NR>1) {print $1}}')
           
-          old_dir_id = $(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and name='old'" | awk 'NR==2{print $1}')
+          old_dir_id=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and name='old'" | awk 'NR==2{print $1}')
           
           for id in $file_ids; do
             echo "file id is $id"
-            gdrive move --config $(pwd) --service-account ${{env.KEY_FILENAME}} --parent $old_dir_id
+            gdrive move --config $(pwd) --service-account ${{env.KEY_FILENAME}} $id --parent $old_dir_id
           done
 
       - name : Remove generated files(key, artifact)
