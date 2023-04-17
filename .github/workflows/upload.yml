@@ -14,7 +14,6 @@ jobs:
       - name: Set artifact name env
         run: |
           echo "ARTIFACT_NAME=$(basename ${{github.workspace}})-${{github.ref_name}}.zip" >> $GITHUB_ENV
-          echo $ARTIFACT_NAME
 
       - name: Print env varriable
         run: |
@@ -63,7 +62,7 @@ jobs:
           > ${{env.CREDENTIALS_FILE}}
 
       - name: Set up Python 3.10
-        uses: actions/setup-python@v2.2.2
+        uses: actions/setup-python@master
         with:
           python-version: 3.10
         
