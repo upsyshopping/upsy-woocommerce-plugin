@@ -3,7 +3,6 @@ import os
 import sys
 import argparse
 import re
-from requests import HTTPError
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -28,8 +27,8 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
             # ater moving all the file from parent folder now upload new file to parent folder
             upload(service=service, parent_folder_id=parent_folder_id,
                    upload_filepath=upload_filepath, upload_filename=upload_filename)
-        except HTTPError as error:
-            print(f'An error occurred: {error}')
+        except:
+            print(f'An error occurred')
     else:
         print('Unable to load service account credentials.')
 
