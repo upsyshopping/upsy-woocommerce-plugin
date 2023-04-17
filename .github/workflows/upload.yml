@@ -14,7 +14,7 @@ jobs:
       - name: Set artifact name to environment variable
         run: |
           echo "ARTIFACT_NAME=${GITHUB_WORKSPACE##*/}-$GITHUB_REF.zip" >> $GITHUB_ENV
-          echo  "artifact name $ARTIFACT_NAME"
+          echo  "artifact name ${{env.ARTIFACT_NAME}}"
 
       - name: Checkout code
         uses: actions/checkout@v2
