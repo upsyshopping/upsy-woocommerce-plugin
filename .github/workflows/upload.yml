@@ -54,6 +54,8 @@ jobs:
           python -m venv env
           source env/bin/activate
           which python
+          python --version
+          pip install requests
           pip install -r scripts/requirements.txt
     
       - name: Upload
