@@ -30,3 +30,39 @@ jobs:
         with:
           name: "${{env.ARTIFACT_NAME}}"
           path: "${{env.ARTIFACT_NAME}}"
+  upload:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: "${{env.ARTIFACT_NAME}}"
+          path: .
+        run: |
+          if ! which base64 >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y coreutils
+          fi
+      - name: Decode and write secret to file
+        run: |
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
+          > ${{env.KEY_FILENAME}}
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.1
+      - name: Install dependencies
+        run: |
+          python -m venv env
+          source env/bin/activate
+          pip install -r scripts/requirements.txt
+      - name: Upload to Google Drive
+        run: |
+          python script/upload.py \
+          -c ${{env.KEY_FILENAME}} \
+          -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
+          -o ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}} \
+          -n ${{env.ARTIFACT_NAME}} \
+          -fp ${{env.ARTIFACT_NAME}}
