@@ -11,28 +11,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set artifact name to environment variable
-        run: |
-          echo ${{github.ref_name}}
-          echo ${{ github.workspace }}
-          echo $GITHUB_WORKSPACE
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           ref: master
-
       - name: Install zip package if not available
         run: |
           if ! which zip > /dev/null; then
             sudo apt-get update
             sudo apt-get install -y zip
           fi
-
       - name: Archive files
         run: |
-          zip -r ${{env.ARTIFACT_NAME}} *
+          zip -r ${{github.ref_name}} *
           ls -lah
-
       - name: upload artifact
         uses: actions/upload-artifact@v2
         with:
