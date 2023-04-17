@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: gdrive-upload-workflow-test
       - name: Install zip package if not available
         run: |
           if ! which zip > /dev/null; then
