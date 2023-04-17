@@ -49,11 +49,11 @@ jobs:
         with:
           python-version: 3.10.6
 
-    - name: Create virtual environment
-      run: python -m venv myenv
+      - name: Create virtual environment
+        run: python -m venv myenv
 
-    - name: Activate virtual environment
-      run: source myenv/bin/activate
+      - name: Activate virtual environment
+        run: source myenv/bin/activate
         
       - name: Install python script dependencies
         run: |
