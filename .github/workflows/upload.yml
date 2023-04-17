@@ -7,8 +7,7 @@ on:
       - gdrive-upload-workflow-test
 
 env:
-  ARTIFACT_NAME: upsy-woocommerce-plugin.zip
-  GDRIVE_DOWNLOAD_LINK: https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
+  ARTIFACT_NAME: ${{github.}}
   KEY_FILENAME: key.json
 
 jobs:
@@ -16,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set artifact name to environment variable
+        run: |
+          echo "ARTIFACT_NAME=${GITHUB_WORKSPACE##*/}-$GITHUB_REF.zip" >> $GITHUB_ENV
+          echo ${{env.ARTIFACT_NAME}}
+          echo  "$artifact name ARTIFACT_NAME"
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -30,7 +34,7 @@ jobs:
 
       - name: Archive files
         run: |
-          zip -r ${{env.ARTIFACT_NAME}} *
+          zip -r ${{env.ARTIFACT_NAME}}
           ls -lah
 
       - name: upload artifact
@@ -50,65 +54,34 @@ jobs:
           name: ${{env.ARTIFACT_NAME}}
           path: .
       
-      - name: Install wget if not exists
-        run: |
-          if ! which wget > /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y wget
-          fi
-      
-      - name: Install base64 if not available
         run: |
           if ! which base64 >/dev/null; then
             sudo apt-get update
             sudo apt-get install -y coreutils
           fi
 
-      - name: List cache contents
-        run: |
-          if test -e ${{runner.workspace}}/.cache > /dev/null; then
-            ls -R ${{ runner.workspace }}/.cache
-          else
-            echo "${{runner.workspace}}/.cache does not exits"
-          fi
-
-      - name: Install prasmussen/gdrive
-        run: |
-            wget -O gdrive ${{env.GDRIVE_DOWNLOAD_LINK}}
-            tar -xzvf gdrive
-            chmod +x gdrive
-            mv -f gdrive /usr/local/bin/
-      - name: Cache gdrive
-        uses: actions/cache@v2
-        with:
-          path: |
-            /usr/local/bin/gdrive
-          key: ${{ runner.os }}-gdrive
-    
       - name: Decode and write secret to file
         run: |
           echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
           > ${{env.KEY_FILENAME}}
-      
-      - name: Upload acrhive to google drive
-        run: |
-          # gdrive upload \
-          # --config $(pwd) \
-          # --service-account ${{env.KEY_FILENAME}} \
-          # --delete -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
-          # --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
+        
+        - name: Set up Python 3.10
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.10
 
-          file_ids=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and mimeType != 'application/vnd.google-apps.folder'" | awk '{if (NR>1) {print $1}}')
-          
-          old_dir_id=$(gdrive list --config $(pwd) --service-account ${{env.KEY_FILENAME}} -q "'${{secrets.GOOGLE_DRIVE_FOLDER_ID}}' in parents and name='old'" | awk 'NR==2{print $1}')
-          echo "old_dir_id $old_dir_id"
-          echo "fileId $file_ids"
-          gdrive upload \
-            --config $(pwd) \
-            --service-account ${{env.KEY_FILENAME}} \
-            --delete -p $old_dir_id \
-            --name ${{env.ARTIFACT_NAME}} ${{env.ARTIFACT_NAME}}
-
-      - name : Remove generated files(key, artifact)
+      - name: Install dependencies
         run: |
-          rm -rf ${{env.KEY_FILENAME}} ${{env.ARTIFACT_NAME}}
+          python -m venv env
+          source env/bin/activate
+          pip install -r scripts/requirements.txt
+
+      - name: Upload to Google Drive
+
+        run: |
+          python script/upload.py \
+          -c ${{env.KEY_FILENAME}} \
+          -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
+          -o ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}} \
+          -n ${{env.ARTIFACT_NAME}} \
+          -fp ${{env.ARTIFACT_NAME}}

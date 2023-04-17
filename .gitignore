@@ -2,3 +2,4 @@
 # .github/
 # .idea/
 _*.txt
+scripts/venv/*
