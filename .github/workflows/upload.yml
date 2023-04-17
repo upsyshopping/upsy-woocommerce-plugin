@@ -60,7 +60,7 @@ jobs:
     
       - name: Upload
         run: |
-          python scripts/upload.py\
+          python3 scripts/upload.py\
             --credentials-file ${{env.CREDENTIALS_FILE}}\
             --parent-folder-id ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}\
             --destination-folder-id ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
