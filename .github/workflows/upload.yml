@@ -14,7 +14,8 @@ jobs:
       - name: Set artifact name to environment variable
         run: |
           echo ${{github.ref_name}}
-
+          echo ${{ github.workspace }}
+          echo $GITHUB_WORKSPACE
       - name: Checkout code
         uses: actions/checkout@v2
         with:
