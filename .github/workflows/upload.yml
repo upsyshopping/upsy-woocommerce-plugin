@@ -56,7 +56,13 @@ jobs:
           pip install -r scripts/requirements.txt
     
       - name: Upload
-        run: echo "done"
+        run: |
+          python scripts/upload.py\
+            --credentials-file ${{env.CREDENTIALS_FILE}}\
+            --parent-folder-id ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}\
+            --destination-folder-id ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
+            --upload-filename ${{env.ARTIFACT_NAME}}\
+            --upload-filepath ${{env.ARTIFACT_NAME}}
       
 
       
