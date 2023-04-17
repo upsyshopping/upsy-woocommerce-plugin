@@ -13,10 +13,9 @@ jobs:
     steps:
       - name: Set artifact name env
         run: |
-          base = basename ${{github.workspace}}
-          echo "ARTIFACT_NAME=$base-${{github.ref_name}}.zip" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=$(basename ${{github.workspace}})-${{github.ref_name}}.zip" >> $GITHUB_ENV
           echo $ARTIFACT_NAME
-          
+
       - name: Print env varriable
         run: |
           echo "Artifact:${{env.ARTIFACT_NAME}} key: ${{env.CREDENTIALS_FILE}}"
