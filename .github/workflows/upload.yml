@@ -10,8 +10,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-      - name: echo 
-        run: echo "Hi"
+    steps:
+      - name: Set artifact name to environment variable
+        run: |
+          echo "ARTIFACT_NAME=${GITHUB_WORKSPACE##*/}-$GITHUB_REF.zip" >> $GITHUB_ENV
+          echo  "artifact name $ARTIFACT_NAME"
+  
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -68,9 +72,4 @@ jobs:
 
       - name: Upload to Google Drive
         run: |
-          python script/upload.py \
-          -c ${{env.KEY_FILENAME}} \
-          -p ${{secrets.GOOGLE_DRIVE_FOLDER_ID}} \
-          -o ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}} \
-          -n ${{env.ARTIFACT_NAME}} \
-          -fp ${{env.ARTIFACT_NAME}}
+          echo "hi"
