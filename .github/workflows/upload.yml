@@ -7,7 +7,7 @@ on:
       - gdrive-upload-workflow-test
 env:
   CREDENTIALS_FILE: credentials.json
-  ARTIFACT_NAME: "${{github.workspace}}-${{github.ref_name}}.zip"
+  ARTIFACT_NAME: "$(basename "${{github.workspace}}")-${{github.ref_name}}.zip"
 jobs:
   build:
     runs-on: ubuntu-latest
