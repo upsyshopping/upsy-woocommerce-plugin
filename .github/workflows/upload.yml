@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: gdrive-upload-workflow-test
+          ref: master
       - name: Install zip package if not available
         run: |
           if ! which zip > /dev/null; then
@@ -43,6 +43,11 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: gdrive-upload-workflow-test
+      
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
