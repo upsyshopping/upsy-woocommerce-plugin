@@ -8,59 +8,37 @@ on:
 env:
   CREDENTIALS_FILE: credentials.json
 jobs:
-  build:
+  build_and_upload:
     runs-on: ubuntu-latest
     steps:
       - name: Set artifact name env
         run: |
           echo "ARTIFACT_NAME=$(basename ${{github.workspace}})-${{github.ref_name}}.zip" >> $GITHUB_ENV
 
-      - name: Print env varriable
-        run: |
-          echo "Artifact:${{env.ARTIFACT_NAME}} key: ${{env.CREDENTIALS_FILE}}"
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: ${{github.ref_name}}
+      
       - name: Install zip package if not available
         run: |
           if ! which zip > /dev/null; then
             sudo apt-get update
             sudo apt-get install -y zip
           fi
-      - name: Archive files
-        run: |
-          
-          zip -r "${{env.ARTIFACT_NAME}}" *
-          ls -lah
-      - name: upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: "${{env.ARTIFACT_NAME}}"
-          path: "${{env.ARTIFACT_NAME}}"
-  upload:
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: gdrive-upload-workflow-test
-      
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: "${{env.ARTIFACT_NAME}}"
-          path: .
-      
+        
       - name: Install base64 if not exits
         run: |
           if ! which base64 >/dev/null; then
             sudo apt-get update
             sudo apt-get install -y coreutils
           fi
-      
+        
+      - name: Archive files
+        run: |
+          zip -r "${{env.ARTIFACT_NAME}}" *
+          ls -lah
+        
       - name: Decode and write secret to file
         run: |
           echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
@@ -71,8 +49,15 @@ jobs:
         with:
           python-version: 3.10.6
         
-      - name: Install dependencies
+      - name: Install python script dependencies
         run: |
           python -m venv env
           source env/bin/activate
           pip install -r scripts/requirements.txt
+    
+      - name: Upload
+        run: echo "done"
+      
+
+      
+
