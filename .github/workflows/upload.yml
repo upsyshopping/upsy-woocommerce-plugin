@@ -50,16 +50,19 @@ jobs:
           python-version: 3.10.6
 
       - name: Create virtual environment
-        run: python -m venv mycustomvenv
+        run: python -m venv .venv
 
       - name: Activate virtual environment
-        run: source mycustomvenv/bin/activate
+        run: source .venv/bin/activate
 
       - name: Cache Python dependencies
         id: cache-pip-deps
         uses: actions/cache@v2
         with:
-          path: mycustomvenv/lib/python3.10/site-packages
+          path: |
+            .venv/lib/python3.10/site-packages
+            ~/.cache/pip
+          path: .venv/lib/python3.10/site-packages
           key: ${{ runner.os }}-cache-pip-deps-${{ hashFiles('scripts/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-cache-pip-deps-
