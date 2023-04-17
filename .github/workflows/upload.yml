@@ -9,16 +9,13 @@ on:
 
 env:
   KEY_FILENAME: key.json
+  ARTIFACT_NAME: upsy-plugin.zip
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set artifact name to environment variable
-        run: |
-          echo "ARTIFACT_NAME=${GITHUB_WORKSPACE##*/}-$GITHUB_REF.zip" >> $GITHUB_ENV
-          
-          echo  "artifact name $ARTIFACT_NAME"
+      
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -33,7 +30,7 @@ jobs:
 
       - name: Archive files
         run: |
-          zip -r ${{env.ARTIFACT_NAME}}
+          zip -r ${{env.ARTIFACT_NAME}} *
           ls -lah
 
       - name: upload artifact
