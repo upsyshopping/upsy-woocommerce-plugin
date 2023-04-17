@@ -215,6 +215,18 @@ class WC_upsy_Tagging
 	 * @return WC_upsy_Tagging|null
 	 * @since 1.0.0
 	 */
+
+	protected $is_discount_plugin_found = false;
+
+	/**
+	 * A variable to track we should hide upsy widget or not.
+	 *
+	 * @since 1.0.0
+	 * @var boolean
+	 */
+
+
+
 	public static function get_instance()
 	{
 		if (null === self::$instance) {
@@ -237,6 +249,7 @@ class WC_upsy_Tagging
 		$this->plugin_dir = plugin_dir_path(__FILE__);
 		$this->plugin_url = plugin_dir_url(__FILE__);
 		$this->plugin_name = plugin_basename(__FILE__);
+		$this->should_upsy_widget_hide();
 		
 		register_activation_hook($this->plugin_name, array($this, 'activate'));
 		register_deactivation_hook($this->plugin_name, array($this, 'deactivate'));
@@ -270,6 +283,45 @@ class WC_upsy_Tagging
 		//add_submenu_page( '$parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
 		//add_submenu_page($this->plugin_name, $this->plugin_display_name, 'Settings', 'administrator', 'upsy-settings', array($this, 'upsy_customer_settings'));
 	}
+
+	public function should_upsy_widget_hide() {
+
+		$is_logged_in_user = $this->check_logged_in_user();
+
+		if(!$is_logged_in_user){
+			return;
+		}
+
+		$this->check_wc_discount_related_plugins('Woo Discount Rules', $is_logged_in_user);		
+	}
+	
+
+	public function check_logged_in_user() {
+
+		require_once ABSPATH . 'wp-includes/pluggable.php';
+
+		$logged_in_user = is_user_logged_in();
+
+		return $logged_in_user;
+
+	}
+
+	public function check_wc_discount_related_plugins($target_plugin_name='Woo Discount Rules', $logged_in_user=false) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+       		 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    	}
+
+		$plugins = get_plugins();
+
+		foreach ( $plugins as $plugin_path => $plugin_info ) {
+			$plugin_name = $plugin_info['Name'];
+			if($plugin_name	== $target_plugin_name && is_plugin_active($plugin_path) && $logged_in_user){
+				$this->is_discount_plugin_found = true;
+				return;
+			}
+		}
+	}
+
 	
 	/**
 	 * Loading Customer settings page.
@@ -1261,6 +1313,10 @@ class WC_upsy_Tagging
 	 */
 	protected function init_frontend()
 	{
+		if($this->is_discount_plugin_found) {
+			return false;
+		}
+
 		$this->init_settings();
 		//add_action( 'woocommerce_before_single_product', array( $this, 'tag_product' ), 20, 0 );
 		
