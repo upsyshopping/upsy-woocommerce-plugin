@@ -64,8 +64,8 @@ jobs:
             ${{ runner.os }}-pip-deps-
     
       - name: Install python script dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
+          echo ${{steps.cache.outputs.cache-hit}}
           which python
           python --version
           pip install -r scripts/requirements.txt
