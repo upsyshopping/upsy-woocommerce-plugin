@@ -54,12 +54,20 @@ jobs:
 
       - name: Activate virtual environment
         run: source myenv/bin/activate
-        
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v2
+        with:
+          path: myenv/lib/python3.10/site-packages
+          key: ${{ runner.os }}-pip-deps-${{ hashFiles('scripts/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-deps-
+    
       - name: Install python script dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           which python
           python --version
-          pip install requests
           pip install -r scripts/requirements.txt
     
       - name: Upload
