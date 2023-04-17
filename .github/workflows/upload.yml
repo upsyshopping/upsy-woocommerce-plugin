@@ -70,7 +70,7 @@ jobs:
           python --version
           pip install -r scripts/requirements.txt
     
-      - name: Upload
+      - name: Upload to google drive
         run: |
           python scripts/upload.py\
             --credentials-file ${{env.CREDENTIALS_FILE}}\
