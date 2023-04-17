@@ -62,7 +62,6 @@ jobs:
           path: |
             .venv/lib/python3.10/site-packages
             ~/.cache/pip
-          path: .venv/lib/python3.10/site-packages
           key: ${{ runner.os }}-cache-pip-deps-${{ hashFiles('scripts/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-cache-pip-deps-
