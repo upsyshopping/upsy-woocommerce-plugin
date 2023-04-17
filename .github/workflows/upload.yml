@@ -10,12 +10,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Set artifact name to environment variable
-        run: |
-          echo "ARTIFACT_NAME=${GITHUB_WORKSPACE##*/}-$GITHUB_REF.zip" >> $GITHUB_ENV
-          echo  "artifact name $ARTIFACT_NAME"
-  
+      - name: echo 
+        run: echo "Hi"
       - name: Checkout code
         uses: actions/checkout@v2
         with:
