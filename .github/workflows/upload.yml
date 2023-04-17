@@ -13,9 +13,8 @@ jobs:
     steps:
       - name: Set artifact name to environment variable
         run: |
-          echo ${{ github.headRef }}
-          echo ${{ github.ref }}
-          echo ${{ github.repository.repo }}
+          echo ${{github.ref_name}}
+          echo ${{github.ref_name + github.ref_name}}
 
       - name: Checkout code
         uses: actions/checkout@v2
