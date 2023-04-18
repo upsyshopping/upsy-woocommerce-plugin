@@ -13,7 +13,6 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
     # Build the Google Drive API client using the authenticated credentials
     service = build_google_drive_service(credentials_file)
-    file_move_batch = BatchHttpRequest()
 
     if service:
         try:
@@ -24,16 +23,18 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:
-                move(service=service, batch=file_move_batch, file_id=file.get('id'),
-                     destination_folder_id=destination_folder_id)
+                print(f"file in loop : {file}")
+                moved_request = move(service=service, file_id=file.get('id'),
+                                     destination_folder_id=destination_folder_id)
+                moved_file = moved_request.execute()
+                print(f"moved file: {moved_file}")
 
             # ater moving all the file from parent folder now upload new file to parent folder
             upload_request = upload(service=service, parent_folder_id=parent_folder_id,
                                     upload_filepath=upload_filepath, upload_filename=upload_filename)
 
-            upload_request.execute()
-
-            file_move_batch.execute()
+            uploaded_file = upload_request.execute()
+            print(f"uploaded file: {uploaded_file}")
 
         except HTTPError as error:
             print(f'An error occurred: {error}')
@@ -97,26 +98,15 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 
 
 # This file will move file from source folder to destination folder
-def move(service, batch, file_id, destination_folder_id):
-    file_meta = service.files().get(fileId=file_id, fields='id,name,parents')
-    print(f"file meta: {file_meta}")
-
-    def callback(request_id, response, exception):
-        print(f"request id : {request_id}")
-        if exception is not None:
-            print(f'An error occurred: {exception}')
-            return
-        print(f"response : {response}")
-        file_id = response.get('id')
-        file = service.files().get(fileId=file_id, fields='parents').execute()
-        previous_parents = ",".join(file.get('parents', []))
-        print(f"previous parents {previous_parents}")
-        print(f"batch: {batch}")
-        # service.files().update(fileId=file_id, addParents=destination_folder_id,
-        #                        removeParents=previous_parents, fields='id, parents').execute()
-        # print(f'File {file_id} has been moved successfully!')
-
-    batch.add(file_meta, callback=callback)
+def move(servie, file_id, destination_folder_id):
+    file = servie.files().get(
+        fileId=file_id, fields='id, name, parents').execute()
+    print(f"file meta : {file}")
+    previous_parents = ",".join(file.get('parents', []))
+    moved_request = servie.files().update(fileId=file_id, addParents=destination_folder_id,
+                                          removeParents=previous_parents,
+                                          fields='id, parents').execute()
+    return moved_request
 
 
 if __name__ == '__main__':
