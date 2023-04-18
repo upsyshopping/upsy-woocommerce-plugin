@@ -55,6 +55,15 @@ jobs:
       - name: Activate virtual environment
         run: source .venv/bin/activate
 
+      - name: Install python script dependencies
+        if: steps.pip-deps.outputs.cache-hit != 'true'
+        run: |
+          echo ${{steps.pip-deps.outputs.cache-hit}}
+          which python
+          python --version
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements.txt
+
       - name: Set up cache directory
         run: |
           export PIP_CACHE_DIR=~/.cache/pip
@@ -68,14 +77,6 @@ jobs:
           key: ${{ runner.os }}-pip-deps-${{ hashFiles('scripts/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-deps-
-
-      - name: Install python script dependencies
-        if: steps.pip-deps.outputs.cache-hit != 'true'
-        run: |
-          which python
-          python --version
-          python -m pip install --upgrade pip
-          pip install -r scripts/requirements.txt
 
       - name: Upload to google drive
         run: |
