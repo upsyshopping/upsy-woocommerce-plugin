@@ -113,7 +113,8 @@ def move(service, batch, file_id, destination_folder_id):
         service.files().update(fileId=file_id, addParents=destination_folder_id,
                                removeParents=previous_parents, fields='id, parents').execute()
         print(f'File {file_id} has been moved successfully!')
-        batch.add(file_meta, callback=callback)
+
+    batch.add(file_meta, callback=callback)
 
 
 if __name__ == '__main__':
