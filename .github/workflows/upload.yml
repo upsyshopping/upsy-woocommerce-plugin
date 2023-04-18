@@ -22,6 +22,13 @@ jobs:
         with:
           ref: ${{github.ref_name}}
 
+      - name: Get branch name
+        id: branch-name
+        run: echo "::set-output name=branch-name::${{ github.event.release.target_commitish }}"
+
+      - name: Use branch name
+        run: echo "The branch name is ${{ steps.branch-name.outputs.branch-name }}"
+
       - name: Install zip package if not available
         run: |
           if ! which zip > /dev/null; then
