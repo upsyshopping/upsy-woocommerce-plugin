@@ -13,7 +13,7 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
     # Build the Google Drive API client using the authenticated credentials
     service = build_google_drive_service(credentials_file)
-    batch = BatchHttpRequest()
+    file_move_batch = BatchHttpRequest()
 
     if service:
         try:
@@ -25,15 +25,17 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:
                 print(f"file: {file}")
-                move(service=service, batch=batch, file_id=file.get('id'),
+                move(service=service, batch=file_move_batch, file_id=file.get('id'),
                      destination_folder_id=destination_folder_id)
 
             # ater moving all the file from parent folder now upload new file to parent folder
-            upload(service=service, batch=batch, parent_folder_id=parent_folder_id,
-                   upload_filepath=upload_filepath, upload_filename=upload_filename)
+            upload_request = upload(service=service, parent_folder_id=parent_folder_id,
+                                    upload_filepath=upload_filepath, upload_filename=upload_filename)
 
-            # batch move and upload operation
-            batch.execute()
+            upload_request.execute()
+
+            file_move_batch.execute()
+
         except HTTPError as error:
             print(f'An error occurred: {error}')
     else:
@@ -87,12 +89,12 @@ def generate_filename(files, upload_filename):
 
 
 # This function will upload file to google drive
-def upload(service, batch, parent_folder_id, upload_filepath, upload_filename):
+def upload(service, parent_folder_id, upload_filepath, upload_filename):
     file_metadata = {'name': upload_filename, 'parents': [parent_folder_id]}
     media = MediaFileUpload(upload_filepath, resumable=True)
     upload_request = service.files().create(body=file_metadata,
                                             media_body=media, fields='id,name')
-    batch.add(upload_request)
+    return upload_request
 
 
 # This file will move file from source folder to destination folder
