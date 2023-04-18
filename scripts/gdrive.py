@@ -25,8 +25,13 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
             for file in files:
                 moved_request = move(service=service, file_id=file.get('id'),
                                      destination_folder_id=destination_folder_id)
+                rename_request = rename(service=service, file_id=file.get('id'), old_name= file.get('name'))
+
                 moved_file = moved_request.execute()
                 print(f"moved file: {moved_file}")
+
+                rename_file = rename_request.execute()
+                print(f"rename file : {rename_file}")
 
             # ater moving all the file from parent folder now upload new file to parent folder
             upload_request = upload(service=service, parent_folder_id=parent_folder_id,
@@ -97,6 +102,11 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 
 
 # This file will move file from source folder to destination folder
+def rename(service,file_id, old_name):
+    new_name = f"OLD_{old_name}"
+    rename_request = service.files().update(fileId=file_id, body={'name': new_name}, fields='id, name, parents')
+    return rename_request
+
 def move(service, file_id, destination_folder_id):
     file = service.files().get(
         fileId=file_id, fields='id, name, parents').execute()
