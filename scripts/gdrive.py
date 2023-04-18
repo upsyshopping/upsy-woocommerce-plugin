@@ -18,8 +18,6 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
         try:
             files = get_files(
                 service=service, parent_folder_id=parent_folder_id)
-            upload_filename = generate_filename(
-                files=files, upload_filename=upload_filename)
 
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:
@@ -71,26 +69,6 @@ def get_files(service, parent_folder_id, query=''):
         q=query, fields='files(id,name)').execute()
     # file list in a specific folder (google drive folder id)
     return results.get('files', [])
-
-
-def generate_filename(files, upload_filename):
-    # Default starting version number
-    version_number = '3.0.0'
-    if files:
-        filename = files[0].get('name')
-        match = re.search(r'\d+\.\d+\.\d+', filename)
-        if match:
-            old_version_number = match.group()
-            parts = old_version_number.split('.')
-            parts[-1] = str(int(parts[-1]) + 1)
-            version_number = '.'.join(parts)
-
-    filename_split = os.path.splitext(upload_filename)
-    name_part = filename_split[0]
-    extension = filename_split[1]
-    upload_filename = f"{name_part}-{version_number}{extension}"
-    return upload_filename
-
 
 # This function will upload file to google drive
 def upload(service, parent_folder_id, upload_filepath, upload_filename):
