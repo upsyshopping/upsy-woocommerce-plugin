@@ -13,7 +13,7 @@ jobs:
   build_and_upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Set artifact name env
+      - name: Set artifact name environment
         run: |
           echo "ARTIFACT_NAME=$(basename ${{github.workspace}})-${{github.ref_name}}.zip" >> $GITHUB_ENV
 
