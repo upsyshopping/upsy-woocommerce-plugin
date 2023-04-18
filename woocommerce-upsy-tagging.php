@@ -84,13 +84,27 @@ class WC_upsy_Tagging
 	 */
 	const PRODUCT_TYPE_BUNDLE = 'bundle';
 	
+	/*
+	 * Woocommerce Event type
+	 */
+	
+	const EVENT_TYPE= 'purchase'; 
+
+	/*
+	 * Random characters for generating random strings.
+	 */
+
+	const RANDOM_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz1234567890';
+
 
 	/**
 	 * upsy default js URLs - use plugin settings to override these
 	 */
 	const UPSYJS_URL_PRODUCTION = 'https://upsy-widget.upsyshopping.com/static/upsy.js';
 	const UPSYJS_URL_STAGING = 'https://upsy-widget-staging.upsyshopping.com/static/upsy.js';
-	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';	
+	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';
+	const UPSYJS_EVENT_URL_LOCAL = 'http://localhost:3000/';
+	const UPSYJS_EVENT_URL_PRODUCTION = 'https://service.upsyshopping.com/upsy/event';	
 	
 	/**
 	 * upsy page types
@@ -1526,7 +1540,83 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 		}
 	}
 	
+	public function send_http_request($data)
+	{
+		$url = self::UPSYJS_EVENT_URL_LOCAL == 'local' ? self::UPSYJS_EVENT_URL_LOCAL : self::UPSYJS_EVENT_URL_PRODUCTION;
+
+		$response = wp_remote_post( $url, array(
+			'body' => $data
+		) );
+
+		if ( is_wp_error( $response ) ) {
+			echo('error');
+		} else {
+			echo('success');
+		}
+
+	}
+
+	public function generate_new_upsy_session_id($tenantId)
+	{
+		$characters = self::RANDOM_CHARACTERS;
+		$random_string = substr(str_shuffle($characters), 0, 15);
+		$session_id = "{$tenantId}-sid-{$random_string}";
+
+		return $session_id;
+	}
+
+	public function get_upsy_session($tenantId)
+	{
+		$cookie = isset( $_COOKIE['upsypx'] ) ? $_COOKIE['upsypx'] : $this->generate_new_upsy_session_id($tenantId);
+		return $cookie;
+	}
+
+	public function sanitize_event_data($chatId, $tenantId, $environment, $event)
+	{
+		$event_payload = array(
+			'chatId' => $chatId,
+			'customerId' => $tenantId,
+			'environment' => $environment,
+			'event' => $event,
+			'params' => array(
+				'eventTarget' => $event,
+				'pageType' => 'thank_you',
+				'products' => array()
+			),
+			'sessionId' => $chatId,
+			'timestamp' => strval(time()),
+		);
+
+		return $event_payload;
+		
+	}
+
+	public function process_event_data( $order_id )
+	 {
+		$order = new WC_Order( $order_id );
+		$items = $order->get_items();
+		$tenantId = get_option('upsy_settings_customer_id');
+		$chatId = $this->get_upsy_session($tenantId);
+		$environment = wp_get_environment_type();
+		$event = self::EVENT_TYPE;
+		$data = $this->sanitize_event_data($chatId, $tenantId, $environment, $event);
+
+		$price_currency_code = $order->get_currency();
+
+		foreach ( $items as $item ) {
+			$productId = $item->get_product_id();
+			$name = $item->get_name();
+			$quantity = $item->get_quantity();
+			$unit_price = $item->get_subtotal();
+			array_push($data['params']['products'], array('name' =>$name, 'quantity' => strval($quantity), 'unit_price' => $unit_price, 'productId' => strval($productId), 'price_currency_code' => $price_currency_code));
+			
+		}
+		$json_event_data = json_encode($data);
+
+		$this->send_http_request($json_event_data);
+	}
 	
 }
 
 add_action('plugins_loaded', array(WC_upsy_Tagging::get_instance(), 'init'));
+add_action( 'woocommerce_checkout_order_processed', array(WC_upsy_Tagging::get_instance(), 'process_event_data') );
