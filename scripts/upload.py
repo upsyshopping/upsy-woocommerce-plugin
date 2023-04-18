@@ -98,14 +98,14 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 
 
 # This file will move file from source folder to destination folder
-def move(servie, file_id, destination_folder_id):
-    file = servie.files().get(
+def move(service, file_id, destination_folder_id):
+    file = service.files().get(
         fileId=file_id, fields='id, name, parents').execute()
     print(f"file meta : {file}")
     previous_parents = ",".join(file.get('parents', []))
-    moved_request = servie.files().update(fileId=file_id, addParents=destination_folder_id,
-                                          removeParents=previous_parents,
-                                          fields='id, parents').execute()
+    moved_request = service.files().update(fileId=file_id, addParents=destination_folder_id,
+                                           removeParents=previous_parents,
+                                           fields='id, parents').execute()
     return moved_request
 
 
