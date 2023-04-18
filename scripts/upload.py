@@ -6,36 +6,41 @@ import re
 from requests import HTTPError
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaFileUpload, BatchHttpRequest
 
 
 def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath):
+
     # Build the Google Drive API client using the authenticated credentials
     service = build_google_drive_service(credentials_file)
+    batch = BatchHttpRequest()
+
     if service:
         try:
             files = get_files(
                 service=service, parent_folder_id=parent_folder_id)
             upload_filename = generate_filename(
                 files=files, upload_filename=upload_filename)
+
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:
                 print(f"file: {file}")
-                moved_file = move(servie=service, file_id=file.get('id'),
-                                  destination_folder_id=destination_folder_id)
-                print(f"Moved file: {moved_file}")
+                move(service=service, batch=batch, file_id=file.get('id'),
+                     destination_folder_id=destination_folder_id)
 
             # ater moving all the file from parent folder now upload new file to parent folder
-            upload(service=service, parent_folder_id=parent_folder_id,
+            upload(service=service, batch=batch, parent_folder_id=parent_folder_id,
                    upload_filepath=upload_filepath, upload_filename=upload_filename)
+
+            # batch move and upload operation
+            batch.execute()
         except HTTPError as error:
             print(f'An error occurred: {error}')
     else:
         print('Unable to load service account credentials.')
 
+
 # This function will create google drive service to action on google drive
-
-
 def build_google_drive_service(credentials_file):
     # Set the scopes that you want to authorize the service account to access - In this case google drive is our scope
     SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -80,28 +85,31 @@ def generate_filename(files, upload_filename):
     upload_filename = f"{name_part}-{version_number}{extension}"
     return upload_filename
 
+
 # This function will upload file to google drive
-
-
-def upload(service, parent_folder_id, upload_filepath, upload_filename):
+def upload(service, batch, parent_folder_id, upload_filepath, upload_filename):
     file_metadata = {'name': upload_filename, 'parents': [parent_folder_id]}
     media = MediaFileUpload(upload_filepath, resumable=True)
-    uploded_file = service.files().create(body=file_metadata,
-                                          media_body=media, fields='id,name').execute()
-    return uploded_file
+    upload_request = service.files().create(body=file_metadata,
+                                            media_body=media, fields='id,name')
+    batch.add(upload_request)
+
 
 # This file will move file from source folder to destination folder
+def move(service, batch, file_id, destination_folder_id):
+    file_meta = service.files().get(fileId=file_id, fields='id,name,parents')
 
-
-def move(servie, file_id, destination_folder_id):
-    file = servie.files().get(
-        fileId=file_id, fields='id, name, parents').execute()
-
-    previous_parents = ",".join(file.get('parents', []))
-    moved_file = servie.files().update(fileId=file_id, addParents=destination_folder_id,
-                                       removeParents=previous_parents,
-                                       fields='id, parents').execute()
-    return moved_file
+    def callback(request_id, response, exception):
+        if exception is not None:
+            print(f'An error occurred: {exception}')
+            return
+        file_id = response.get('id')
+        file = service.files().get(fileId=file_id, fields='parents').execute()
+        previous_parents = ",".join(file.get('parents', []))
+        service.files().update(fileId=file_id, addParents=destination_folder_id,
+                               removeParents=previous_parents, fields='id, parents').execute()
+        print(f'File {file_id} has been moved successfully!')
+        batch.add(file_meta, callback=callback)
 
 
 if __name__ == '__main__':
