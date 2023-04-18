@@ -105,7 +105,7 @@ def move(service, file_id, destination_folder_id):
     previous_parents = ",".join(file.get('parents', []))
     moved_request = service.files().update(fileId=file_id, addParents=destination_folder_id,
                                            removeParents=previous_parents,
-                                           fields='id, parents').execute()
+                                           fields='id, parents')
     return moved_request
 
 
