@@ -1,6 +1,8 @@
 name: Archive and Upload to Google Drive
 on:
   push:
+    tags:
+      - "v[1-9]+.[0-9]+.[0-9]+"
     branches:
       - main
       - master
