@@ -1,4 +1,4 @@
-name: Archive and Upload to Google Drive
+name: Archive Move and Upload to Google Drive
 on:
   push:
     tags:
@@ -59,9 +59,6 @@ jobs:
 
       - name: Install python script dependencies
         run: |
-          echo ${{steps.pip-deps.outputs.cache-hit}}
-          which python
-          python --version
           python -m pip install --upgrade pip
           pip install -r scripts/requirements.txt
 
