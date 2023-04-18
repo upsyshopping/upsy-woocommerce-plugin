@@ -20,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: ${{github.ref_name}}
+          ref: master
 
       - name: Get branch name
         id: branch-name
