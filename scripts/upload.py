@@ -102,17 +102,19 @@ def move(service, batch, file_id, destination_folder_id):
     print(f"file meta: {file_meta}")
 
     def callback(request_id, response, exception):
+        print(f"request id : {request_id}")
         if exception is not None:
             print(f'An error occurred: {exception}')
             return
+        print(f"response : {response}")
         file_id = response.get('id')
         file = service.files().get(fileId=file_id, fields='parents').execute()
         previous_parents = ",".join(file.get('parents', []))
         print(f"previous parents {previous_parents}")
         print(f"batch: {batch}")
-        service.files().update(fileId=file_id, addParents=destination_folder_id,
-                               removeParents=previous_parents, fields='id, parents').execute()
-        print(f'File {file_id} has been moved successfully!')
+        # service.files().update(fileId=file_id, addParents=destination_folder_id,
+        #                        removeParents=previous_parents, fields='id, parents').execute()
+        # print(f'File {file_id} has been moved successfully!')
 
     batch.add(file_meta, callback=callback)
 
