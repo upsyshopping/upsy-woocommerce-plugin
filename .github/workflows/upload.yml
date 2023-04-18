@@ -3,10 +3,7 @@ on:
   push:
     tags:
       - "v[1-9]+.[0-9]+.[0-9]+"
-    branches:
-      - main
-      - master
-      - gdrive-upload-workflow-test
+
 env:
   CREDENTIALS_FILE: credentials.json
 jobs:
@@ -15,6 +12,9 @@ jobs:
     steps:
       - name: Set artifact name environment
         run: |
+          echo "workspace: ${{github.workspace}}"
+          echo "branch name: ${{github.ref_name}}"
+          echo "tag name: ${{github.ref}}"
           echo "ARTIFACT_NAME=$(basename ${{github.workspace}})-${{github.ref_name}}.zip" >> $GITHUB_ENV
 
       - name: Checkout code
