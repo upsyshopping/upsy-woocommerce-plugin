@@ -1,10 +1,9 @@
 name: Archive and Upload to Google Drive
 on:
   push:
-    branches:
-      - main
-      - master
-      - upsy-452
+    tags:
+      - '^.*-?v[1-9]+\.[0-9]+\.[0-9]+$'
+
 env:
   CREDENTIALS_FILE: credentials.json
 jobs:
