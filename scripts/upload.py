@@ -23,7 +23,6 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:
-                print(f"file in loop : {file}")
                 moved_request = move(service=service, file_id=file.get('id'),
                                      destination_folder_id=destination_folder_id)
                 moved_file = moved_request.execute()
@@ -101,7 +100,7 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 def move(service, file_id, destination_folder_id):
     file = service.files().get(
         fileId=file_id, fields='id, name, parents').execute()
-    print(f"file meta : {file}")
+
     previous_parents = ",".join(file.get('parents', []))
     moved_request = service.files().update(fileId=file_id, addParents=destination_folder_id,
                                            removeParents=previous_parents,
