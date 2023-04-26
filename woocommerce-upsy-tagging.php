@@ -88,7 +88,7 @@ class WC_upsy_Tagging
 	 * Woocommerce Event type
 	 */
 	
-	const EVENT_TYPE= 'purchase'; 
+	const PURCHASE_EVENT_TYPE= 'purchase'; 
 
 	/*
 	 * Random characters for generating random strings.
@@ -1598,7 +1598,7 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 		$tenantId = get_option('upsy_settings_customer_id');
 		$chatId = $this->get_upsy_session($tenantId);
 		$environment = wp_get_environment_type();
-		$event = self::EVENT_TYPE;
+		$event = self::PURCHASE_EVENT_TYPE;
 		$data = $this->sanitize_event_data($chatId, $tenantId, $environment, $event);
 
 		$price_currency_code = $order->get_currency();
