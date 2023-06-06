@@ -104,7 +104,10 @@ class WC_upsy_Tagging
 	const UPSYJS_URL_STAGING = 'https://upsy-widget-staging.upsyshopping.com/static/upsy.js';
 	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';
 	const UPSYJS_EVENT_URL_LOCAL = 'http://localhost:3000/';
-	const UPSYJS_EVENT_URL_PRODUCTION = 'https://service.upsyshopping.com/upsy/event';	
+	const UPSYJS_EVENT_URL_PRODUCTION = 'https://upsy-backend-prod.azurewebsites.net';
+	const UPSYJS_ANALYTICS_KEY_PRODUCTION = 'XaQ8cBzy6MqfL2tARCTaPnnaNxJQaL9zYsTUIhLm43ztWwXgRvL0Mw==';
+	const UPSYJS_EVENT_URL_STAGING = 'https://upsy-backend-dev.azurewebsites.net';
+    const UPSYJS_ANALYTICS_KEY_STAGING = 'oYDWXeqNpuDQeNrWq9AKwHZKsNPN7WTApOKanRXuQ3kEOBds2YQQvg==';	
 	
 	/**
 	 * upsy page types
@@ -1539,14 +1542,29 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 			$this->renderElements($default_element_ids, self::PAGE_TYPE_FRONT_PAGE);
 		}
 	}
+
+	public function generate_upsy_event_url($url, $data)
+	{
+		$key = wp_get_environment_type() != 'production' ? self::UPSYJS_ANALYTICS_KEY_STAGING : self::UPSYJS_ANALYTICS_KEY_PRODUCTION;
+		$decoded_data = json_decode($data, true);
+		$tenantId = $decoded_data['customerId'];
+		$session_id = $decoded_data['sessionId'];
+		$event_url = "{$url}/api/rooms/{$tenantId}/chats/{$session_id}/event?code={$key}";
+		return $event_url;
+	}
 	
 	public function send_http_request($data)
 	{
-		$url = self::UPSYJS_EVENT_URL_LOCAL == 'local' ? self::UPSYJS_EVENT_URL_LOCAL : self::UPSYJS_EVENT_URL_PRODUCTION;
-
-		$response = wp_remote_post( $url, array(
-			'body' => $data
-		) );
+		$url = wp_get_environment_type() != 'production' ? $this->generate_upsy_event_url(self::UPSYJS_EVENT_URL_STAGING, $data) : $this->generate_upsy_event_url(self::UPSYJS_EVENT_URL_PRODUCTION, $data);
+		$decoded_data = json_decode($data, true);
+		$options = [
+			'body'        => $data,
+			'headers'     => [
+				'Content-Type' => 'application/json',
+			],
+			'data_format' => 'body',
+		];
+		$response = wp_remote_post($url, $options);
 
 		if ( is_wp_error( $response ) ) {
 			echo('error');
