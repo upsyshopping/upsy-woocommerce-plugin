@@ -22,7 +22,7 @@ class WC_upsy_Tagging
 	 *
 	 * @since 1.0.0
 	 */
-	const VERSION = '2.1.0';
+	const VERSION = '3.2.0';
 	
 	/**
 	 * Minimum WordPress version this plugin works with.
