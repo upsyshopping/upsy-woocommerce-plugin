@@ -104,6 +104,7 @@ class WC_upsy_Tagging
 	const UPSYJS_URL_STAGING = 'https://upsy-widget-staging.upsyshopping.com/static/upsy.js';
 	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';
 	const UPSYJS_EVENT_URL_LOCAL = 'http://localhost:3000/';
+	const UPSYJS_PLUGIN_VERSION_DETECTOR_URL = 'https://raw.githubusercontent.com/upsyshopping/upsy-woocommerce-plugin/release/manifest.json';	
 	const UPSYJS_EVENT_URL_PRODUCTION = 'https://upsy-backend-prod.azurewebsites.net';
 	const UPSYJS_ANALYTICS_KEY_PRODUCTION = 'XaQ8cBzy6MqfL2tARCTaPnnaNxJQaL9zYsTUIhLm43ztWwXgRvL0Mw==';
 	const UPSYJS_EVENT_URL_STAGING = 'https://upsy-backend-dev.azurewebsites.net';
@@ -1308,6 +1309,36 @@ class WC_upsy_Tagging
 		return array_reverse($parents);
 	}
 	
+
+	public function upsy_plugin_new_release_update() 
+	{
+		$new_plugin_version = null;
+		try {
+			$response = wp_remote_get(self::UPSYJS_PLUGIN_VERSION_DETECTOR_URL, [
+				'timeout' => 120,
+				'httpversion' => '1.1'
+			]);
+
+			if( wp_remote_retrieve_response_code( $response ) === 200 ){
+				$body = wp_remote_retrieve_body( $response );
+				$json_object = json_decode($body);
+				$new_plugin_version = $json_object->version;
+			}
+
+			$plugin_file = WP_PLUGIN_DIR . "/{$this->get_plugin_name()}";
+
+			$plugin_data = get_plugin_data( $plugin_file );
+			$running_plugin_version = $plugin_data['Version'];
+			
+			if ( version_compare( $running_plugin_version, $new_plugin_version, '<' ) ) {
+				echo '<div class="notice notice-warning"><p>There is a new version of your plugin available. Please update to the latest version to ensure that your site is secure and up-to-date.</p></div>';
+    		}
+		} catch(error) {
+			// echo error;
+		}
+	}
+
+	
 	/**
 	 * Initializes the plugin admin part.
 	 *
@@ -1317,6 +1348,7 @@ class WC_upsy_Tagging
 	 */
 	protected function init_admin()
 	{
+		add_action( 'admin_notices', array( $this, 'upsy_plugin_new_release_update' ) );
 		//$this->load_class( 'WC_Integration_upsy_Tagging' );
 		//add_filter( 'woocommerce_integrations', array( 'WC_Integration_upsy_Tagging', 'add_integration' ) );
 	}
