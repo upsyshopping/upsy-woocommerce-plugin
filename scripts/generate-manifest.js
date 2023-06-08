@@ -9,7 +9,7 @@ const manifest = {
     "author": "<a href='https://github.com/upsyshopping'>Upsy</a>",
     "author_profile": "https://upsyshopping.com",
     "version": version,
-    "download_url": `https://github.com/upsyshopping/upsy-woocommerce-plugin/releases/download/${version}/upsy.zip`,
+    "download_url": `https://github.com/upsyshopping/upsy-woocommerce-plugin/archive/refs/tags/${version}.zip`,
     "requires": "4.4.0",
     "tested": "5.8.1",
     "added": "2023-06-05 02:10:00",
