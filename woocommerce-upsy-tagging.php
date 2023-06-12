@@ -287,9 +287,9 @@ class WC_upsy_Tagging
 	 * @since 1.0.0
 	 */
 	function admin_enqueue_scripts_callback($hook){
-		wp_enqueue_style('upsy-plugin-style', plugin_dir_url( __FILE__ ). "assets/css/upsy-plugin-style.css");
-		wp_enqueue_script( 'ajax-script', plugin_dir_url( __FILE__ ). "assets/js/main.js" , array('jquery'));
-		wp_localize_script('ajax-script', 'upsy_wc_auth', array('ajax_url' => admin_url('admin-ajax.php'), 'host' => get_site_url(), 'environment' => wp_get_environment_type(), 'return_url' => esc_url(menu_page_url($this->get_plugin_name(), false))));
+		wp_enqueue_style('upsy-plugin-style', plugin_dir_url( __FILE__ ). "assets/css/upsy-plugin-style.css", array(), self::VERSION);
+		wp_enqueue_script( 'upsy_plugin_main_js', plugin_dir_url( __FILE__ ). "assets/js/upsy_plugin_main.js" , array('jquery'), self::VERSION);
+		wp_localize_script('upsy_plugin_main_js', 'upsy_wc_auth', array('ajax_url' => admin_url('admin-ajax.php'), 'host' => get_site_url(), 'environment' => wp_get_environment_type(), 'return_url' => esc_url(menu_page_url($this->get_plugin_name(), false))));
 	}
 
 	function add_menu()
