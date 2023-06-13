@@ -104,6 +104,7 @@ class WC_upsy_Tagging
 	const UPSYJS_URL_STAGING = 'https://upsy-widget-staging.upsyshopping.com/static/upsy.js';
 	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';
 	const UPSYJS_EVENT_URL_LOCAL = 'http://localhost:3000/';
+	const UPSYJS_PLUGIN_VERSION_DETECTOR_URL = 'https://raw.githubusercontent.com/upsyshopping/upsy-woocommerce-plugin/release/manifest.json';	
 	const UPSYJS_EVENT_URL_PRODUCTION = 'https://upsy-backend-prod.azurewebsites.net';
 	const UPSYJS_ANALYTICS_KEY_PRODUCTION = 'XaQ8cBzy6MqfL2tARCTaPnnaNxJQaL9zYsTUIhLm43ztWwXgRvL0Mw==';
 	const UPSYJS_EVENT_URL_STAGING = 'https://upsy-backend-dev.azurewebsites.net';
@@ -1633,8 +1634,111 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 
 		$this->send_http_request($json_event_data);
 	}
+
+	public function upsy_new_release_push_notification($transient)
+	{
+		if ( empty( $transient->checked ) ) {
+			return $transient;
+		}
+
+		$remote = wp_remote_get( 
+			self::UPSYJS_PLUGIN_VERSION_DETECTOR_URL,
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Accept' => 'application/json'
+				)
+			)
+		);
+
+		if( is_wp_error( $remote ) || 200 !== wp_remote_retrieve_response_code( $remote ) || empty( wp_remote_retrieve_body( $remote ) )) {
+			return $transient;	
+		}
+		
+		$remote = json_decode( wp_remote_retrieve_body( $remote ) );
+	
+		if(
+			$remote
+			&& version_compare( $this->version, $remote->version, '<' )
+			&& version_compare( $remote->requires, get_bloginfo( 'version' ), '<' )
+			&& version_compare( $remote->requires_php, PHP_VERSION, '<' )
+		) {
+			
+			$res = new stdClass();
+			$res->slug = $remote->slug;
+			$res->plugin = plugin_basename( __FILE__ ); 
+			$res->new_version = $remote->version;
+			$res->tested = $remote->tested;
+			$res->package = $remote->download_url;
+			$transient->response[ $res->plugin ] = $res;
+			
+		}
+	
+		return $transient;
+	}
+
+	public function upsy_new_release_installation( $res, $action, $args )
+	{
+		if( 'plugin_information' !== $action ) {
+			return $res;
+		}
+
+		if( plugin_basename( __DIR__ ) !== $args->slug ) {
+			return $res;
+		}
+
+		$remote = wp_remote_get( 
+			self::UPSYJS_PLUGIN_VERSION_DETECTOR_URL, 
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Accept' => 'application/json'
+				) 
+			)
+		);
+
+		if( 
+			is_wp_error( $remote )
+			|| 200 !== wp_remote_retrieve_response_code( $remote )
+			|| empty( wp_remote_retrieve_body( $remote ) )
+		) {
+			return $res;	
+		}
+
+		$remote = json_decode( wp_remote_retrieve_body( $remote ) );
+		
+		$res = new stdClass();
+		$res->name = $remote->name;
+		$res->slug = $remote->slug;
+		$res->author = $remote->author;
+		$res->author_profile = $remote->author_profile;
+		$res->version = $remote->version;
+		$res->tested = $remote->tested;
+		$res->requires = $remote->requires;
+		$res->requires_php = $remote->requires_php;
+		$res->download_link = $remote->download_url;
+		$res->trunk = $remote->download_url;
+		$res->last_updated = $remote->last_updated;
+		$res->sections = array(
+			'description' => $remote->sections->description,
+			'installation' => $remote->sections->installation,
+			'changelog' => $remote->sections->changelog
+		);
+		if( ! empty( $remote->sections->screenshots ) ) {
+			$res->sections[ 'screenshots' ] = $remote->sections->screenshots;
+		}
+
+		$res->banners = array(
+			'low' => $remote->banners->low,
+			'high' => $remote->banners->high
+		);
+		
+		return $res;
+	}
 	
 }
 
 add_action('plugins_loaded', array(WC_upsy_Tagging::get_instance(), 'init'));
 add_action( 'woocommerce_checkout_order_processed', array(WC_upsy_Tagging::get_instance(), 'process_event_data') );
+add_filter( 'site_transient_update_plugins', array(WC_upsy_Tagging::get_instance(), 'upsy_new_release_push_notification') );
+add_filter( 'plugins_api', array(WC_upsy_Tagging::get_instance(), 'upsy_new_release_installation'), 20, 3);
