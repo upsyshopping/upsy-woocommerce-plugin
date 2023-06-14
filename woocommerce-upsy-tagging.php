@@ -1635,6 +1635,21 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 		$this->send_http_request($json_event_data);
 	}
 
+	public function change_update_notification_msg( $translated_text, $untranslated_text, $domain ) 
+	{
+
+		if ( is_admin() ) {
+			$texts = array('There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a> or <a href="%5$s" %6$s>update now</a>.' => 'There is a new version of %1$s available. <a href="%5$s" %6$s>update now</a>.'
+			);
+
+			if ( array_key_exists( $untranslated_text, $texts ) ) {
+				return $texts[$untranslated_text];
+			}
+		}
+
+		return $translated_text;
+	}
+
 	public function upsy_new_release_push_notification($transient)
 	{
 		if ( empty( $transient->checked ) ) {
@@ -1663,7 +1678,7 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 			&& version_compare( $remote->requires, get_bloginfo( 'version' ), '<' )
 			&& version_compare( $remote->requires_php, PHP_VERSION, '<' )
 		) {
-			
+			add_filter( 'gettext', array($this,'change_update_notification_msg'), 20, 3 );
 			$res = new stdClass();
 			$res->slug = $remote->slug;
 			$res->plugin = plugin_basename( __FILE__ ); 
