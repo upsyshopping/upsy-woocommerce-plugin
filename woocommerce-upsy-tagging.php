@@ -1639,7 +1639,9 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 	{
 
 		if ( is_admin() ) {
-			$texts = array('There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a> or <a href="%5$s" %6$s>update now</a>.' => 'There is a new version of %1$s available. <a href="%5$s" %6$s>update now</a>.'
+			$texts = array('There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a>.' => 'There is a new version of %1$s available.',
+            'There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a>. <em>Automatic update is unavailable for this theme.</em>' => 'There is a new version of %1$s available. <em>Automatic update is unavailable for this theme.</em>',
+			'There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a> or <a href="%5$s" %6$s>update now</a>.' => 'There is a new version of %1$s available. <a href="%5$s" %6$s>update now</a>.'
 			);
 
 			if ( array_key_exists( $untranslated_text, $texts ) ) {
