@@ -104,6 +104,7 @@ class WC_upsy_Tagging
 	const UPSYJS_URL_STAGING = 'https://upsy-widget-staging.upsyshopping.com/static/upsy.js';
 	const UPSYJS_URL_LOCAL = 'http://localhost:3000/static/upsy.js';
 	const UPSYJS_EVENT_URL_LOCAL = 'http://localhost:3000/';
+	const UPSYJS_PLUGIN_VERSION_DETECTOR_URL = 'https://raw.githubusercontent.com/upsyshopping/upsy-woocommerce-plugin/release/manifest.json';	
 	const UPSYJS_EVENT_URL_PRODUCTION = 'https://upsy-backend-prod.azurewebsites.net';
 	const UPSYJS_ANALYTICS_KEY_PRODUCTION = 'XaQ8cBzy6MqfL2tARCTaPnnaNxJQaL9zYsTUIhLm43ztWwXgRvL0Mw==';
 	const UPSYJS_EVENT_URL_STAGING = 'https://upsy-backend-dev.azurewebsites.net';
@@ -1633,8 +1634,69 @@ e("<?php echo $upsyjsurl; ?>", f, document.body)
 
 		$this->send_http_request($json_event_data);
 	}
+
+	public function change_update_notification_msg( $translated_text, $untranslated_text, $domain ) 
+	{
+
+		if ( is_admin() ) {
+			$texts = array('There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a>.' => 'There is a new version of %1$s available.',
+            'There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a>. <em>Automatic update is unavailable for this theme.</em>' => 'There is a new version of %1$s available. <em>Automatic update is unavailable for this theme.</em>',
+			'There is a new version of %1$s available. <a href="%2$s" %3$s>View version %4$s details</a> or <a href="%5$s" %6$s>update now</a>.' => 'There is a new version of %1$s available. <a href="%5$s" %6$s>update now</a>.'
+			);
+
+			if ( array_key_exists( $untranslated_text, $texts ) ) {
+				return $texts[$untranslated_text];
+			}
+		}
+
+		return $translated_text;
+	}
+
+	public function upsy_new_release_push_notification($transient)
+	{
+		if ( empty( $transient->checked ) ) {
+			return $transient;
+		}
+
+		$remote = wp_remote_get( 
+			self::UPSYJS_PLUGIN_VERSION_DETECTOR_URL,
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Accept' => 'application/json'
+				)
+			)
+		);
+
+		if( is_wp_error( $remote ) || 200 !== wp_remote_retrieve_response_code( $remote ) || empty( wp_remote_retrieve_body( $remote ) )) {
+			return $transient;	
+		}
+		
+		$remote = json_decode( wp_remote_retrieve_body( $remote ) );
+	
+		if(
+			$remote
+			&& version_compare( $this->version, $remote->version, '<' )
+			&& version_compare( $remote->requires, get_bloginfo( 'version' ), '<' )
+			&& version_compare( $remote->requires_php, PHP_VERSION, '<' )
+		) {
+			add_filter( 'gettext', array($this,'change_update_notification_msg'), 20, 3 );
+			$res = new stdClass();
+			$res->slug = $remote->slug;
+			$res->plugin = plugin_basename( __FILE__ ); 
+			$res->new_version = $remote->version;
+			$res->tested = $remote->tested;
+			$res->package = $remote->download_url;
+			$transient->response[ $res->plugin ] = $res;
+			
+		}
+	
+		return $transient;
+	}
+
 	
 }
 
 add_action('plugins_loaded', array(WC_upsy_Tagging::get_instance(), 'init'));
 add_action( 'woocommerce_checkout_order_processed', array(WC_upsy_Tagging::get_instance(), 'process_event_data') );
+add_filter( 'site_transient_update_plugins', array(WC_upsy_Tagging::get_instance(), 'upsy_new_release_push_notification') );
