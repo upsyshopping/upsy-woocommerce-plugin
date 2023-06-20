@@ -66,13 +66,13 @@ def get_files(service, parent_folder_id, query=''):
     # Retrieve a list of all file IDs in the parent folder except for the folder type
     query = query if query else "trashed = false and '{}' in parents and mimeType != 'application/vnd.google-apps.folder'".format(
         parent_folder_id)
-    results = service.files().list().execute()
+    results = service.files().list(pageSize=1000).execute()
     # results = service.files().list(
     #     orderBy="modifiedTime desc",
     #     q=query, fields='files(id,name)').execute()
     # file list in a specific folder (google drive folder id)
     print("file get results results:\n")
-    print(results)
+    # print(results)
     return results.get('files', [])
 
 
