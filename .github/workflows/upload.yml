@@ -96,5 +96,5 @@ jobs:
             --parent-folder-id ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}\
             --destination-folder-id ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
             --upload-filename ${{env.ARTIFACT_NAME}}\
-            --upload-filepath ${{env.ARTIFACT_NAME}}
+            --upload-filepath ${{env.ARTIFACT_NAME}}\
             --workspace-delegate-email ${{secrets.WORKSPACE_DELEGATE_EMAIL}}
