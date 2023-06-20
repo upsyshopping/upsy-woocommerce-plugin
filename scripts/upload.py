@@ -47,7 +47,7 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
 # This function will create google drive service to action on google drive
 def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
-    print(f"inside build service: {workspace_delegate_email}")
+    print(f"Build drive service: {workspace_delegate_email}")
     # Set the scopes that you want to authorize the service account to access - In this case google drive is our scope
     SCOPES = ['https://www.googleapis.com/auth/drive']
     # Load the service account credentials from the credential path
@@ -104,6 +104,7 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 
 # This file will move file from source folder to destination folder
 def move(service, file_id, destination_folder_id):
+    print(f"destination folder id: {destination_folder_id}")
     file = service.files().get(
         fileId=file_id, fields='id, name, parents').execute()
 
