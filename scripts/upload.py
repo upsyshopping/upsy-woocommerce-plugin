@@ -9,11 +9,13 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, BatchHttpRequest
 
 
-def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath):
+def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, workspace_delegate_email=''):
 
     # Build the Google Drive API client using the authenticated credentials
-    service = build_google_drive_service(credentials_file)
-
+    service = build_google_drive_service(credentials_file, workspace_delegate_email=workspace_delegate_email)
+    
+    print(f"parent folder: {parent_folder_id}, destination folder: {destination_folder_id} and delegation email: {workspace_delegate_email} ")
+    
     if service:
         try:
             files = get_files(
@@ -22,7 +24,9 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
             #     files=files, upload_filename=upload_filename)
 
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
+            
             for file in files:
+                print(f"Temporary print->file {file}")
                 moved_request = move(service=service, file_id=file.get('id'),
                                      destination_folder_id=destination_folder_id)
                 moved_file = moved_request.execute()
@@ -42,7 +46,7 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
 
 # This function will create google drive service to action on google drive
-def build_google_drive_service(credentials_file):
+def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
     # Set the scopes that you want to authorize the service account to access - In this case google drive is our scope
     SCOPES = ['https://www.googleapis.com/auth/drive']
     # Load the service account credentials from the credential path
@@ -52,7 +56,8 @@ def build_google_drive_service(credentials_file):
         creds = service_account.Credentials.from_service_account_file(
             credentials_file, scopes=SCOPES)
     if creds is not None:
-        service = build('drive', 'v3', credentials=creds)
+        delegate_creds = creds.with_subject(workspace_delegate_email) if workspace_delegate_email else creds
+        service = build('drive', 'v3', credentials=delegate_creds)
     return service
 
 
@@ -115,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--destination-folder-id', type=str)
     parser.add_argument('--upload-filename', type=str)
     parser.add_argument('--upload-filepath', type=str)
+    parser.add_argument('--workspace-delegate-email', type=str)
     args = parser.parse_args()
 
     credentials_file = args.credentials_file
@@ -122,6 +128,7 @@ if __name__ == '__main__':
     destination_folder_id = args.destination_folder_id
     upload_filename = args.upload_filename
     upload_filepath = args.upload_filepath
+    workspace_delegate_email = args.workspace_delegate_email
 
     if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath]):
         sys.stderr.write(
@@ -135,4 +142,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     main(credentials_file=credentials_file,
-         parent_folder_id=parent_folder_id, destination_folder_id=destination_folder_id, upload_filename=upload_filename, upload_filepath=upload_filepath)
+         parent_folder_id=parent_folder_id, destination_folder_id=destination_folder_id, upload_filename=upload_filename, upload_filepath=upload_filepath, workspace_delegate_email=workspace_delegate_email)
