@@ -18,8 +18,8 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
         try:
             files = get_files(
                 service=service, parent_folder_id=parent_folder_id)
-            upload_filename = generate_filename(
-                files=files, upload_filename=upload_filename)
+            # upload_filename = generate_filename(
+            #     files=files, upload_filename=upload_filename)
 
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:

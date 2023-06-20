@@ -49,8 +49,7 @@ jobs:
 
       - name: Decode and write secret to file
         run: |
-          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
-          > ${{env.CREDENTIALS_FILE}}
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode | tee ${{env.CREDENTIALS_FILE}}
 
       - name: Set up Python 3.x
         uses: actions/setup-python@v2
@@ -85,7 +84,11 @@ jobs:
           key: ${{ runner.os }}-pip-deps-${{ hashFiles('scripts/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-deps-
-
+      
+      - name: print folder
+        run: |
+          echo ${{env.GOOGLE_DRIVE_FOLDER_ID}} ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}
+              
       - name: Upload to google drive
         run: |
           python scripts/upload.py\
