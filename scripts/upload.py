@@ -67,7 +67,7 @@ def get_files(service, parent_folder_id, query=''):
     # query = query if query else "trashed = false and '{}' in parents and mimeType != 'application/vnd.google-apps.folder'".format(
     #     parent_folder_id)
     query = "name='WORDPRESS' and mimeType='application/vnd.google-apps.folder'"
-    results = service.files().list(q=query, pageSize=100).execute()
+    results = service.files().list(pageSize=100).execute()
     # file list in a specific folder (google drive folder id)
     print(f"files: {results}")
     return results.get('files', [])
