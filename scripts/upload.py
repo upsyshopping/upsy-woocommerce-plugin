@@ -47,6 +47,7 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
 # This function will create google drive service to action on google drive
 def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
+    print(f"inside build service: {workspace_delegate_email}")
     # Set the scopes that you want to authorize the service account to access - In this case google drive is our scope
     SCOPES = ['https://www.googleapis.com/auth/drive']
     # Load the service account credentials from the credential path
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     upload_filename = args.upload_filename
     upload_filepath = args.upload_filepath
     workspace_delegate_email = args.workspace_delegate_email
-
+    print(f"delete email {workspace_delegate_email}")
     if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath]):
         sys.stderr.write(
             """please provie those arguments value:
