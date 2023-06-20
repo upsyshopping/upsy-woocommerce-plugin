@@ -94,7 +94,7 @@ def generate_filename(files, upload_filename):
 
 # This function will upload file to google drive
 def upload(service, parent_folder_id, upload_filepath, upload_filename):
-    file_metadata = {'name': upload_filename, 'parents': [parent_folder_id]}
+    file_metadata = {'name': upload_filename, 'parents': [parent_folder_id], 'driveId': '0ABEpU42fu0P8Uk9PVA'}
     media = MediaFileUpload(upload_filepath, resumable=True)
     print(media)
     upload_request = service.files().create(body=file_metadata,
