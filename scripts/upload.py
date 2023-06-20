@@ -66,11 +66,13 @@ def get_files(service, parent_folder_id, query=''):
     # Retrieve a list of all file IDs in the parent folder except for the folder type
     query = query if query else "trashed = false and '{}' in parents and mimeType != 'application/vnd.google-apps.folder'".format(
         parent_folder_id)
-
-    results = service.files().list(
-        orderBy="modifiedTime desc",
-        q=query, fields='files(id,name)').execute()
+    results = service.files().list().execute()
+    # results = service.files().list(
+    #     orderBy="modifiedTime desc",
+    #     q=query, fields='files(id,name)').execute()
     # file list in a specific folder (google drive folder id)
+    print("file get results results:\n")
+    print(results)
     return results.get('files', [])
 
 
@@ -97,6 +99,7 @@ def generate_filename(files, upload_filename):
 def upload(service, parent_folder_id, upload_filepath, upload_filename):
     file_metadata = {'name': upload_filename, 'parents': [parent_folder_id]}
     media = MediaFileUpload(upload_filepath, resumable=True)
+    print(media)
     upload_request = service.files().create(body=file_metadata,
                                             media_body=media, fields='id,name')
     return upload_request
