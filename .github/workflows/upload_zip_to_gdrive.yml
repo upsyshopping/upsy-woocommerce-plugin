@@ -85,15 +85,19 @@ jobs:
           key: ${{ runner.os }}-pip-deps-${{ hashFiles('scripts/googleDrive/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-deps-
+      
+      - name: print
+        run: |
+          echo $GOOGLE_DRIVE_FOLDER_ID $GOOGLE_DRIVE_DESTINATION_FOLDER_ID $UNSTABLE_PLUGIN_FOLDER_ID $DRIVE_ID $WORKSPACE_DELEGATE_EMAIL
               
       - name: Upload to google drive
         run: |
           python scripts/googleDrive/google_drive_upload.py\
             --credentials-file ${{env.CREDENTIALS_FILE}}\
-            --parent-folder-id ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}\
-            --destination-folder-id ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
-            --unstable-plugin-folder-id ${{secrets.UNSTABLE_PLUGIN_FOLDER_ID}}\
+            --parent-folder-id $GOOGLE_DRIVE_FOLDER_ID\
+            --destination-folder-id $GOOGLE_DRIVE_DESTINATION_FOLDER_ID\
+            --unstable-plugin-folder-id $UNSTABLE_PLUGIN_FOLDER_ID\
             --upload-filename ${{env.ARTIFACT_NAME}}\
             --upload-filepath ${{env.ARTIFACT_NAME}}\
-            --drive-id ${{secrets.DRIVE_ID}}\
-            --workspace-delegate-email ${{secrets.WORKSPACE_DELEGATE_EMAIL}}
+            --drive-id $DRIVE_ID\
+            --workspace-delegate-email $WORKSPACE_DELEGATE_EMAIL
