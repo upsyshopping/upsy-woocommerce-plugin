@@ -1,8 +1,8 @@
-name: Archive and Upload to Google Drive
+name: Plugin zip upload to google drive
 on:
   push:
     tags:
-      - "v[1-9]+.[0-9]+.[0-9]+"
+      - "[1-9]+.[0-9]+.[0-9]+(-[a-zA-Z0-9]+)?"
 
 env:
   CREDENTIALS_FILE: credentials.json
@@ -25,7 +25,7 @@ jobs:
         id: branch-name
         run: echo "::set-output name=branch-name::${{ github.event.release.target_commitish }}"
 
-      - name: Use branch name
+      - name: Print branch name
         run: echo "The branch name is ${{ steps.branch-name.outputs.branch-name }}"
 
       - name: Install zip package if not available
@@ -45,11 +45,11 @@ jobs:
       - name: Archive files
         run: |
           zip -r "${{env.ARTIFACT_NAME}}" *
-          ls -lah
 
       - name: Decode and write secret to file
         run: |
-          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode | tee ${{env.CREDENTIALS_FILE}}
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
+          > ${{env.CREDENTIALS_FILE}}
 
       - name: Set up Python 3.x
         uses: actions/setup-python@v2
@@ -69,7 +69,7 @@ jobs:
           which python
           python --version
           python -m pip install --upgrade pip
-          pip install -r scripts/requirements.txt
+          pip install --quiet -r scripts/requirements.txt
 
       - name: Set up cache directory
         run: |
@@ -84,10 +84,6 @@ jobs:
           key: ${{ runner.os }}-pip-deps-${{ hashFiles('scripts/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-deps-
-      
-      - name: print folder
-        run: |
-          echo ${{env.GOOGLE_DRIVE_FOLDER_ID}} ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}
               
       - name: Upload to google drive
         run: |
