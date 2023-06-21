@@ -4,7 +4,7 @@
 	Plugin URI: https://upsyshopping.com
 	Description: Enables UPSY for WooCommerce.
 	Author: Upsy Company Oy
-	Version: 3.1.0
+	Version: 3.3.0
 	License: GPL3
 */
 
@@ -22,7 +22,7 @@ class WC_upsy_Tagging
 	 *
 	 * @since 1.0.0
 	 */
-	const VERSION = '3.2.0';
+	const VERSION = '3.3.0';
 	
 	/**
 	 * Minimum WordPress version this plugin works with.
