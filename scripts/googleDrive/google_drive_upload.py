@@ -18,14 +18,20 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
         
         try:
             files = get_files(service=service, parent_folder_id=parent_folder_id, drive_id=drive_id)
-            
-            # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
-            for file in files:
-                moved_request = move(service=service, file_id=file.get('id'), destination_folder_id=destination_folder_id)
-                moved_file = moved_request.execute()
-                print(f"moved file: {moved_file}")
+            pattern = r'\d+\.\d+\.\d+-(.*)'
+            match = re.search(pattern, upload_filename)
 
-            # ater moving all the file from parent folder now upload new file to parent folder
+            # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
+            if not match:
+                for file in files:
+                    moved_request = move(service=service, file_id=file.get('id'), destination_folder_id=destination_folder_id)
+                    moved_file = moved_request.execute()
+                    print(f"moved file: {moved_file}")
+            else:
+                print(match.group(1))
+                folder = get_or_create_folder(service=service, parent_folder_id=parent_folder_id, folder_name=match.group(1))
+                parent_folder_id = folder[0]['id']
+
             upload_request = upload(service=service, parent_folder_id=parent_folder_id, 
                                     upload_filepath=upload_filepath, upload_filename=upload_filename)
             
@@ -37,6 +43,34 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
     else:
         print('Unable to load service account credentials.')
 
+
+def get_or_create_folder(service, parent_folder_id, folder_name):
+    query = "name='{folder_name}' and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'".format(
+        folder_name=folder_name,
+        parent_folder_id=parent_folder_id)
+    #retrive files from a specific folder
+    results = service.files().list(
+        orderBy="modifiedTime desc",
+        q=query, fields='files(id,name)', 
+        supportsAllDrives=True, 
+        includeItemsFromAllDrives=True, 
+        corpora='drive', driveId=drive_id).execute()
+    print(f"get folders : {results}")
+    files = results.get('files',[])
+
+    if not files:
+        folder_metadata = {
+            'name': folder_name,
+            'mimeType': 'application/vnd.google-apps.folder',
+            'parents': [parent_folder_id]
+        }
+        folder = service.files().create(body=folder_metadata,  fields='id,name', supportsAllDrives=True).execute()
+        print(f"create folder : {folder}")
+        files = [folder]
+    return files
+        
+
+        
 
 # This function will create google drive service to action on google drive
 def build_google_drive_service(credentials_file, workspace_delegate_email=''):
