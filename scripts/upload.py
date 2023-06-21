@@ -28,7 +28,7 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
                                      destination_folder_id=destination_folder_id)
                 moved_file = moved_request.execute()
                 print(f"moved file: {moved_file}")
-
+            upload_filename = "new/{upload_filename}".format(upload_filename=upload_filename)
             # ater moving all the file from parent folder now upload new file to parent folder
             upload_request = upload(service=service, parent_folder_id=parent_folder_id,
                                     upload_filepath=upload_filepath, upload_filename=upload_filename)
