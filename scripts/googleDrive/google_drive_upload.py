@@ -53,34 +53,6 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
         print('Unable to load service account credentials.')
 
 
-def get_or_create_folder(service, parent_folder_id, folder_name):
-    query = "name='{folder_name}' and trashed = false and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'".format(
-        folder_name=folder_name,
-        parent_folder_id=parent_folder_id)
-    #retrive files from a specific folder
-    results = service.files().list(
-        orderBy="modifiedTime desc",
-        q=query, fields='files(id,name)', 
-        supportsAllDrives=True, 
-        includeItemsFromAllDrives=True, 
-        corpora='drive', driveId=drive_id).execute()
-    print(f"get folders : {results.get('files',[])}")
-    files = results.get('files',[])
-
-    if not files:
-        folder_metadata = {
-            'name': folder_name,
-            'mimeType': 'application/vnd.google-apps.folder',
-            'parents': [parent_folder_id]
-        }
-        folder = service.files().create(body=folder_metadata,  fields='id,name', supportsAllDrives=True).execute()
-        print(f"create folder : {folder}")
-        files = [folder]
-    return files
-        
-
-        
-
 # This function will create google drive service to action on google drive
 def build_google_drive_service(credentials_file, workspace_delegate_email=''):
     # Set the scopes that you want to authorize the service account to access - In this case google drive is our scope
@@ -112,27 +84,6 @@ def get_files(service, parent_folder_id, drive_id, query=''):
 
     return results.get('files', [])
 
-
-def generate_filename(files, upload_filename):
-    # Default starting version number
-    version_number = '3.0.0'
-
-    if files:
-        filename = files[0].get('name')
-        match = re.search(r'\d+\.\d+\.\d+', filename)
-        if match:
-            old_version_number = match.group()
-            parts = old_version_number.split('.')
-            parts[-1] = str(int(parts[-1]) + 1)
-            version_number = '.'.join(parts)
-
-    filename_split = os.path.splitext(upload_filename)
-    name_part = filename_split[0]
-    extension = filename_split[1]
-
-    upload_filename = f"{name_part}-{version_number}{extension}"
-
-    return upload_filename
 
 # 'driveId': '0ABEpU42fu0P8Uk9PVA' for upsyshopping.com
 # This function will upload file to google drive
@@ -179,8 +130,6 @@ if __name__ == '__main__':
     workspace_delegate_email = args.workspace_delegate_email
     unstable_plugin_folder_id = args.unstable_plugin_folder_id
 
-    print(f"args: {args}")
-    
     if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id]):
         sys.stderr.write(
             """please provie those arguments value:
