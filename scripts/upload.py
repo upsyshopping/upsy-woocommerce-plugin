@@ -58,18 +58,19 @@ def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
             credentials_file, scopes=SCOPES)
     if creds is not None:
         delegate_creds = creds.with_subject(workspace_delegate_email) if workspace_delegate_email else creds
-        service = build('drive', 'v3', credentials=delegate_creds)
+        service = build('drive', 'v3', credentials=delegate_creds, supportsAllDrives=True)
     return service
 
 
 def get_files(service, parent_folder_id, query=''):
     # Retrieve a list of all file IDs in the parent folder except for the folder type
-    # query = query if query else "trashed = false and '{}' in parents and mimeType != 'application/vnd.google-apps.folder'".format(
-    #     parent_folder_id)
-    query = "name='WORDPRESS' and mimeType='application/vnd.google-apps.folder'"
-    results = service.files().list(corpora='drive', driveId='0ABEpU42fu0P8Uk9PVA',includeItemsFromAllDrives=True,supportsAllDrives=True).execute()
+    query = query if query else "trashed = false and '{}' in parents and mimeType != 'application/vnd.google-apps.folder'".format(
+        parent_folder_id)
+
+    results = service.files().list(
+        orderBy="modifiedTime desc",
+        q=query, fields='files(id,name)').execute()
     # file list in a specific folder (google drive folder id)
-    print(f"files: {results}")
     return results.get('files', [])
 
 
@@ -91,12 +92,12 @@ def generate_filename(files, upload_filename):
     upload_filename = f"{name_part}-{version_number}{extension}"
     return upload_filename
 
-
+# 'driveId': '0ABEpU42fu0P8Uk9PVA'
 # This function will upload file to google drive
 def upload(service, parent_folder_id, upload_filepath, upload_filename):
-    file_metadata = {'name': upload_filename, 'parents': [parent_folder_id], 'driveId': '0ABEpU42fu0P8Uk9PVA'}
+    file_metadata = {'name': upload_filename, 'parents': [parent_folder_id]}
     media = MediaFileUpload(upload_filepath, resumable=True)
-    print(media)
+    print(f"media: {media}")
     upload_request = service.files().create(body=file_metadata,
                                             media_body=media, fields='id,name')
     return upload_request
