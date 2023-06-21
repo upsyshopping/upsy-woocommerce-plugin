@@ -68,7 +68,7 @@ def get_files(service, parent_folder_id, query=''):
 
     results = service.files().list(
         orderBy="modifiedTime desc",
-        q=query, fields='files(id,name)', supportsAllDrives=True, corpora='drive', driveId='0ABEpU42fu0P8Uk9PVA').execute()
+        q=query, fields='files(id,name)', supportsAllDrives=True, includeItemsFromAllDrives = True, corpora='drive', driveId='0ABEpU42fu0P8Uk9PVA').execute()
     print(f"file get results: {results}")
     # file list in a specific folder (google drive folder id)
     return results.get('files', [])
