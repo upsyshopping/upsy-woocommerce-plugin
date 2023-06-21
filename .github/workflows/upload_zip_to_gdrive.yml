@@ -90,9 +90,10 @@ jobs:
         run: |
           python scripts/googleDrive/google_drive_upload.py\
             --credentials-file ${{env.CREDENTIALS_FILE}}\
-            --parent-folder-id ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}\
-            --destination-folder-id ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
+            --parent-folder-id ${{env.GOOGLE_DRIVE_FOLDER_ID}}\
+            --destination-folder-id ${{env.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
+            --unstable-plugin-folder-id ${{env.UNSTABLE_PLUGIN_FOLDER_ID}}\
             --upload-filename ${{env.ARTIFACT_NAME}}\
             --upload-filepath ${{env.ARTIFACT_NAME}}\
-            --drive-id ${{secrets.DRIVE_ID}}\
-            --workspace-delegate-email ${{secrets.WORKSPACE_DELEGATE_EMAIL}}
+            --drive-id ${{env.DRIVE_ID}}\
+            --workspace-delegate-email ${{env.WORKSPACE_DELEGATE_EMAIL}}

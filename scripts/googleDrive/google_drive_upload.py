@@ -9,8 +9,9 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 
-def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id, workspace_delegate_email=''):
+def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id, workspace_delegate_email='',unstable_plugin_folder_id=''):
 
+    print(f"filepath: {upload_filepath}, filename: {upload_filename},parent_folder_id: {parent_folder_id}, destination_folder_id: {destination_folder_id}, drive_id: {drive_id}, unstable_plugin_folder_id: {unstable_plugin_folder_id}, workspace_delegate_email: {workspace_delegate_email} ")
     # Build the Google Drive API client using the authenticated credentials
     service = build_google_drive_service(credentials_file, workspace_delegate_email=workspace_delegate_email)
     
@@ -23,16 +24,22 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
             # if match for example 3.3.4-upsy or 3.3.4-ocs or 3.3.4-alpha thats means this is not a production zip
             pattern = r'\d+\.\d+\.\d+-(.*?)\.[^.]*$'
             match = re.search(pattern, upload_filename)
+
             print(f"pattern match result: {match}")
+
+            # if not matching, meaning this is a stable zip upload operation
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             if not match:
                 for file in files:
                     moved_request = move(service=service, file_id=file.get('id'), destination_folder_id=destination_folder_id)
                     moved_file = moved_request.execute()
                     print(f"moved file: {moved_file}")
+            elif match and not unstable_plugin_folder_id:
+                print('unstable plugin folder id is not available, so no upload operation for unstable plugin')
+                return
             else:
-                folder = get_or_create_folder(service=service, parent_folder_id=parent_folder_id, folder_name=match.group(1))
-                parent_folder_id = folder[0].get("id") if folder and folder[0].get("id") else parent_folder_id
+                print(f"upload zip to unstable plugin folder. unstable folder id: {unstable_plugin_folder_id}")
+                parent_folder_id = unstable_plugin_folder_id
 
             upload_request = upload(service=service, parent_folder_id=parent_folder_id, 
                                     upload_filepath=upload_filepath, upload_filename=upload_filename)
@@ -159,6 +166,7 @@ if __name__ == '__main__':
     parser.add_argument('--upload-filename', type=str)
     parser.add_argument('--upload-filepath', type=str)
     parser.add_argument('--drive-id', type=str)
+    parser.add_argument('--unstable-plugin-folder-id', type=str)
     parser.add_argument('--workspace-delegate-email', type=str)
     args = parser.parse_args()
 
@@ -169,6 +177,7 @@ if __name__ == '__main__':
     upload_filepath = args.upload_filepath
     drive_id = args.drive_id
     workspace_delegate_email = args.workspace_delegate_email
+    unstable_plugin_folder_id = args.unstable_plugin_folder_id
     
     if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id]):
         sys.stderr.write(
@@ -188,4 +197,5 @@ if __name__ == '__main__':
          upload_filename=upload_filename, 
          upload_filepath=upload_filepath, 
          drive_id=drive_id, 
-         workspace_delegate_email=workspace_delegate_email)
+         workspace_delegate_email=workspace_delegate_email,
+         unstable_plugin_folder_id=unstable_plugin_folder_id)
