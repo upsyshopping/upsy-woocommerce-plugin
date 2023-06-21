@@ -1,0 +1,97 @@
+name: Wordpress plugin zip file upload to google drive
+on:
+  push:
+    tags:
+      - "[1-9]+.[0-9]+.[0-9]+"
+
+env:
+  CREDENTIALS_FILE: credentials.json
+jobs:
+  build_and_upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set artifact name environment
+        run: |
+          echo "workspace: ${{github.workspace}}"
+          echo "branch name: ${{github.ref_name}}"
+          echo "tag name: ${{github.ref}}"
+          echo ${GITHUB_REF#refs/tags/}
+          echo "ARTIFACT_NAME=$(basename ${{github.workspace}})-${{github.ref_name}}.zip" >> $GITHUB_ENV
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get branch name
+        id: branch-name
+        run: echo "::set-output name=branch-name::${{ github.event.release.target_commitish }}"
+
+      - name: Print branch name
+        run: echo "The branch name is ${{ steps.branch-name.outputs.branch-name }}"
+
+      - name: Install zip package if not available
+        run: |
+          if ! which zip > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y zip
+          fi
+
+      - name: Install base64 if not exits
+        run: |
+          if ! which base64 >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y coreutils
+          fi
+
+      - name: Archive files
+        run: |
+          zip -r "${{env.ARTIFACT_NAME}}" *
+
+      - name: Decode and write secret to file
+        run: |
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" | base64 --decode \
+          > ${{env.CREDENTIALS_FILE}}
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Create python virtual environment
+        run: python -m venv .venv
+
+      - name: Activate python virtual environment
+        run: source .venv/bin/activate
+
+      - name: Install python script dependencies
+        if: steps.pip-deps.outputs.cache-hit != 'true'
+        run: |
+          echo ${{steps.pip-deps.outputs.cache-hit}}
+          which python
+          python --version
+          python -m pip install --upgrade pip
+          pip install --quiet -r scripts/googleDrive/requirements.txt
+
+      - name: Set up cache directory
+        run: |
+          export PIP_CACHE_DIR=~/.cache/pip
+          mkdir -p ~/.cache/pip
+
+      - name: Cache Python dependencies
+        id: pip-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-deps-${{ hashFiles('scripts/googleDrive/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-deps-
+              
+      - name: Upload to google drive
+        run: |
+          python scripts/googleDrive/google_drive_upload.py\
+            --credentials-file ${{env.CREDENTIALS_FILE}}\
+            --parent-folder-id ${{secrets.GOOGLE_DRIVE_FOLDER_ID}}\
+            --destination-folder-id ${{secrets.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
+            --upload-filename ${{env.ARTIFACT_NAME}}\
+            --upload-filepath ${{env.ARTIFACT_NAME}}\
+            --drive-id ${{secrets.DRIVE_ID}}\
+            --workspace-delegate-email ${{secrets.WORKSPACE_DELEGATE_EMAIL}}
