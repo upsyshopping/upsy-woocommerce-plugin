@@ -58,7 +58,7 @@ def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
             credentials_file, scopes=SCOPES)
     if creds is not None:
         delegate_creds = creds.with_subject(workspace_delegate_email) if workspace_delegate_email else creds
-        service = build('drive', 'v3', credentials=delegate_creds, supportsAllDrives=True)
+        service = build('drive', 'v3', credentials=delegate_creds)
     return service
 
 
@@ -69,7 +69,7 @@ def get_files(service, parent_folder_id, query=''):
 
     results = service.files().list(
         orderBy="modifiedTime desc",
-        q=query, fields='files(id,name)').execute()
+        q=query, fields='files(id,name)', supportsAllDrives=True).execute()
     # file list in a specific folder (google drive folder id)
     return results.get('files', [])
 
@@ -99,7 +99,7 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
     media = MediaFileUpload(upload_filepath, resumable=True)
     print(f"media: {media}")
     upload_request = service.files().create(body=file_metadata,
-                                            media_body=media, fields='id,name')
+                                            media_body=media, fields='id,name',supportsAllDrives=True)
     return upload_request
 
 
@@ -107,11 +107,12 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 def move(service, file_id, destination_folder_id):
     print(f"destination folder id: {destination_folder_id}")
     file = service.files().get(
-        fileId=file_id, fields='id, name, parents').execute()
+        fileId=file_id, fields='id, name, parents',supportsAllDrives=True).execute()
 
     previous_parents = ",".join(file.get('parents', []))
     moved_request = service.files().update(fileId=file_id, addParents=destination_folder_id,
                                            removeParents=previous_parents,
+                                           supportsAllDrives=True,
                                            fields='id, parents')
     return moved_request
 
