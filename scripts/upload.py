@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, BatchHttpRequest
 
 
-def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, workspace_delegate_email=''):
+def main(credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id, workspace_delegate_email=''):
 
     # Build the Google Drive API client using the authenticated credentials
     service = build_google_drive_service(credentials_file, workspace_delegate_email=workspace_delegate_email)
@@ -17,15 +17,13 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
     if service:
         try:
             files = get_files(
-                service=service, parent_folder_id=parent_folder_id)
-            print(files)
+                service=service, parent_folder_id=parent_folder_id, drive_id=drive_id)
             # upload_filename = generate_filename(
             #     files=files, upload_filename=upload_filename)
 
-            # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             
+            # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             for file in files:
-                print(f"Temporary print->file {file}")
                 moved_request = move(service=service, file_id=file.get('id'),
                                      destination_folder_id=destination_folder_id)
                 moved_file = moved_request.execute()
@@ -46,7 +44,6 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
 # This function will create google drive service to action on google drive
 def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
-    print(f"Build drive service: {workspace_delegate_email}")
     # Set the scopes that you want to authorize the service account to access - In this case google drive is our scope
     SCOPES = ['https://www.googleapis.com/auth/drive']
     # Load the service account credentials from the credential path
@@ -61,16 +58,15 @@ def build_google_drive_service(credentials_file, workspace_delegate_email = ''):
     return service
 
 
-def get_files(service, parent_folder_id, query=''):
+def get_files(service, parent_folder_id, drive_id, query=''):
     # Retrieve a list of all file IDs in the parent folder except for the folder type
     query = query if query else "trashed = false and '{}' in parents and mimeType != 'application/vnd.google-apps.folder'".format(
         parent_folder_id)
 
     results = service.files().list(
         orderBy="modifiedTime desc",
-        q=query, fields='files(id,name)', supportsAllDrives=True, includeItemsFromAllDrives = True, corpora='drive', driveId='0ABEpU42fu0P8Uk9PVA').execute()
-    print(f"file get results: {results}")
-    # file list in a specific folder (google drive folder id)
+        q=query, fields='files(id,name)', supportsAllDrives=True, includeItemsFromAllDrives = True, corpora='drive', driveId = drive_id).execute()
+
     return results.get('files', [])
 
 
@@ -97,7 +93,6 @@ def generate_filename(files, upload_filename):
 def upload(service, parent_folder_id, upload_filepath, upload_filename):
     file_metadata = {'name': upload_filename, 'parents': [parent_folder_id]}
     media = MediaFileUpload(upload_filepath, resumable=True)
-    print(f"media: {media}")
     upload_request = service.files().create(body=file_metadata,
                                             media_body=media, fields='id,name',supportsAllDrives=True)
     return upload_request
@@ -105,7 +100,6 @@ def upload(service, parent_folder_id, upload_filepath, upload_filename):
 
 # This file will move file from source folder to destination folder
 def move(service, file_id, destination_folder_id):
-    print(f"destination folder id: {destination_folder_id}")
     file = service.files().get(
         fileId=file_id, fields='id, name, parents',supportsAllDrives=True).execute()
 
@@ -114,7 +108,6 @@ def move(service, file_id, destination_folder_id):
                                            removeParents=previous_parents,
                                            supportsAllDrives=True,
                                            fields='id, parents')
-    print(f"move request: {moved_request}")
     return moved_request
 
 
@@ -125,6 +118,7 @@ if __name__ == '__main__':
     parser.add_argument('--destination-folder-id', type=str)
     parser.add_argument('--upload-filename', type=str)
     parser.add_argument('--upload-filepath', type=str)
+    parser.add_argument('--drive-id', type=str)
     parser.add_argument('--workspace-delegate-email', type=str)
     args = parser.parse_args()
 
@@ -133,18 +127,20 @@ if __name__ == '__main__':
     destination_folder_id = args.destination_folder_id
     upload_filename = args.upload_filename
     upload_filepath = args.upload_filepath
+    drive_id = args.drive_id
     workspace_delegate_email = args.workspace_delegate_email
-    print(f"delete email {workspace_delegate_email}")
-    if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath]):
+    
+    if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id]):
         sys.stderr.write(
             """please provie those arguments value:
 --credentials-file,
 --parent-folder-id,
 --destination-folder-id,
 --upload-filename,
---upload-filepath
+--upload-filepath,
+--drive-id
 """)
         sys.exit(1)
 
     main(credentials_file=credentials_file,
-         parent_folder_id=parent_folder_id, destination_folder_id=destination_folder_id, upload_filename=upload_filename, upload_filepath=upload_filepath, workspace_delegate_email=workspace_delegate_email)
+         parent_folder_id=parent_folder_id, destination_folder_id=destination_folder_id, upload_filename=upload_filename, upload_filepath=upload_filepath, drive_id=drive_id, workspace_delegate_email=workspace_delegate_email)
