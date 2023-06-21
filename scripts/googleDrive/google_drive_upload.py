@@ -18,9 +18,12 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
         
         try:
             files = get_files(service=service, parent_folder_id=parent_folder_id, drive_id=drive_id)
-            pattern = r'\d+\.\d+\.\d+-(.*)'
-            match = re.search(pattern, upload_filename)
 
+            # This pattern will match if there have any extra string after the version number excluding file extension
+            # if match for example 3.3.4-upsy or 3.3.4-ocs or 3.3.4-alpha thats means this is not a production zip
+            pattern = r'\d+\.\d+\.\d+-(.*?)\.[^.]*$'
+            match = re.search(pattern, upload_filename)
+            print(f"pattern match result: {match}")
             # iterate all files from prvided folder id and move them to prodived destination folder(id) one by one
             if not match:
                 for file in files:
@@ -28,9 +31,8 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
                     moved_file = moved_request.execute()
                     print(f"moved file: {moved_file}")
             else:
-                print(match.group(1))
                 folder = get_or_create_folder(service=service, parent_folder_id=parent_folder_id, folder_name=match.group(1))
-                parent_folder_id = folder[0]['id']
+                parent_folder_id = folder[0].get("id") if folder and folder[0].get("id") else parent_folder_id
 
             upload_request = upload(service=service, parent_folder_id=parent_folder_id, 
                                     upload_filepath=upload_filepath, upload_filename=upload_filename)
@@ -45,7 +47,7 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
 
 
 def get_or_create_folder(service, parent_folder_id, folder_name):
-    query = "name='{folder_name}' and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'".format(
+    query = "name='{folder_name}' and trashed = false and '{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'".format(
         folder_name=folder_name,
         parent_folder_id=parent_folder_id)
     #retrive files from a specific folder
@@ -55,7 +57,7 @@ def get_or_create_folder(service, parent_folder_id, folder_name):
         supportsAllDrives=True, 
         includeItemsFromAllDrives=True, 
         corpora='drive', driveId=drive_id).execute()
-    print(f"get folders : {results}")
+    print(f"get folders : {results.get('files',[])}")
     files = results.get('files',[])
 
     if not files:
