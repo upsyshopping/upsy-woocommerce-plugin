@@ -6,6 +6,11 @@ on:
       - "[1-9]+.[0-9]+.[0-9]+-*"
 
 env:
+  GOOGLE_DRIVE_FOLDER_ID: $GOOGLE_DRIVE_FOLDER_ID
+  GOOGLE_DRIVE_DESTINATION_FOLDER_ID: $GOOGLE_DRIVE_DESTINATION_FOLDER_ID
+  UNSTABLE_PLUGIN_FOLDER_ID: $UNSTABLE_PLUGIN_FOLDER_ID
+  DRIVE_ID: $DRIVE_ID
+  WORKSPACE_DELEGATE_EMAIL: $WORKSPACE_DELEGATE_EMAIL
   CREDENTIALS_FILE: credentials.json
 jobs:
   build_and_upload:
@@ -94,10 +99,10 @@ jobs:
         run: |
           python scripts/googleDrive/google_drive_upload.py\
             --credentials-file ${{env.CREDENTIALS_FILE}}\
-            --parent-folder-id $GOOGLE_DRIVE_FOLDER_ID\
-            --destination-folder-id $GOOGLE_DRIVE_DESTINATION_FOLDER_ID\
-            --unstable-plugin-folder-id $UNSTABLE_PLUGIN_FOLDER_ID\
+            --parent-folder-id ${{env.GOOGLE_DRIVE_FOLDER_ID}}\
+            --destination-folder-id ${{env.GOOGLE_DRIVE_DESTINATION_FOLDER_ID}}\
+            --unstable-plugin-folder-id ${{env.UNSTABLE_PLUGIN_FOLDER_ID}}\
             --upload-filename ${{env.ARTIFACT_NAME}}\
             --upload-filepath ${{env.ARTIFACT_NAME}}\
-            --drive-id $DRIVE_ID\
-            --workspace-delegate-email $WORKSPACE_DELEGATE_EMAIL
+            --drive-id ${{env.DRIVE_ID}}\
+            --workspace-delegate-email ${{env.WORKSPACE_DELEGATE_EMAIL}}

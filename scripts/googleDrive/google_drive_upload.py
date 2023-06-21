@@ -178,6 +178,8 @@ if __name__ == '__main__':
     drive_id = args.drive_id
     workspace_delegate_email = args.workspace_delegate_email
     unstable_plugin_folder_id = args.unstable_plugin_folder_id
+
+    print(f"args: {args}")
     
     if not all([credentials_file, parent_folder_id, destination_folder_id, upload_filename, upload_filepath, drive_id]):
         sys.stderr.write(
