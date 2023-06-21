@@ -14,12 +14,11 @@ def main(credentials_file, parent_folder_id, destination_folder_id, upload_filen
     # Build the Google Drive API client using the authenticated credentials
     service = build_google_drive_service(credentials_file, workspace_delegate_email=workspace_delegate_email)
     
-    print(f"parent folder: {parent_folder_id}, destination folder: {destination_folder_id} and delegation email: {workspace_delegate_email} ")
-    
     if service:
         try:
             files = get_files(
                 service=service, parent_folder_id=parent_folder_id)
+            print(files)
             # upload_filename = generate_filename(
             #     files=files, upload_filename=upload_filename)
 
@@ -70,6 +69,7 @@ def get_files(service, parent_folder_id, query=''):
     results = service.files().list(
         orderBy="modifiedTime desc",
         q=query, fields='files(id,name)', supportsAllDrives=True).execute()
+    print(f"file get results: {results}")
     # file list in a specific folder (google drive folder id)
     return results.get('files', [])
 
@@ -114,6 +114,7 @@ def move(service, file_id, destination_folder_id):
                                            removeParents=previous_parents,
                                            supportsAllDrives=True,
                                            fields='id, parents')
+    print(f"move request: {moved_request}")
     return moved_request
 
 
