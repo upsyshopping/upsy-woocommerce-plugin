@@ -361,7 +361,7 @@ class WC_upsy_Tagging
 			do_action('admin_notices', ['type' => 'error', 'message' => 'Upsy WooCommerce Authentication Failed.Please try again']);
 		}else if($is_wc_auth_redirect && $_GET['success'] == '1'){
 			if($_GET['user_id']){
-				update_option('upsy_settings_customer_id', absint($_GET['user_id']));
+				update_option('upsy_settings_customer_id', sanitize_text_field($_GET['user_id']));
 			}
 			update_option('isUpsyWcAuthSuccess', '1');
 			do_action('admin_notices', ['type' => 'success', 'message' => 'Store successfully authorize - welcome to using Upsy! Your Upsy installation is now being progressed by the team, we will get back to you when it is ready to be used in your store']);
