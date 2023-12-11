@@ -15,7 +15,7 @@
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap" id="upsy-setting-wrapper">
 	<div id="upsy-banner-section">
-		<img alt="Upsy shopping helper banner image" src="<?php echo isset($plugin_dir_url) ?  $plugin_dir_url . "/assets/images/upsy-banner-logo.png" : "";?>"/>
+		<img alt="Upsy shopping helper banner image" src="<?php echo isset($plugin_dir_url) ? esc_url($plugin_dir_url . "/assets/images/upsy-banner-logo.png") : ''; ?>" />
 	</div>
 	<div id="icon-themes" class="icon32"></div>  
 	<div id="upsy-setting-section">
