@@ -10,5 +10,5 @@
  */
 ?>
 <?php if ( isset( $page_type ) && !empty( $page_type ) ): ?>
-<div class="upseller_page_type" style="display:none"><?php echo $page_type; ?></div>
+<div class="upseller_page_type" style="display:none"><?php echo esc_attr($page_type); ?></div>
 <?php endif; ?>

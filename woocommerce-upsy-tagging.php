@@ -514,7 +514,7 @@ class WC_upsy_Tagging
 				$value = wp_get_environment_type();
 			}
 			//disabled for now to work with URL
-			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '" disabled="disabled"/>';
+			echo '<input type="' . esc_attr($args['subtype']) . '" id="' . esc_attr($args['id']) . '"' . ' name="' . esc_attr($args['name']) . '" size="40" value="' . esc_attr($value) . '" disabled="disabled" />';
 			echo "<small>Variable defined at wp-config [production/staging/local]. Example: define('WP_ENVIRONMENT_TYPE', 'staging')<small/>";
 		}else if($args['id'] == 'upsy_settings_jsurl'){
 
@@ -530,19 +530,26 @@ class WC_upsy_Tagging
 				}
 			}
 			*/
-			echo '<input type="' . $args['subtype'] . '" id="' . $args['id'] . '"' . ' name="' . $args['name'] . '" size="40" value="' . esc_attr($value) . '"/>';
+			echo '<input type="' . esc_attr($args['subtype']) . '" id="' . esc_attr($args['id']) . '"' . ' name="' . esc_attr($args['name']) . '" size="40" value="' . esc_attr($value) . '"/>';
 			if(wp_get_environment_type() == 'local'){
-				echo "<small>Default for this: " . self::UPSYJS_URL_LOCAL . "<small/>";
+				echo "<small>Default for this: " . esc_url(self::UPSYJS_URL_LOCAL) . "<small/>";
 			}else if(wp_get_environment_type() == 'staging'){
-				echo "<small>Default for this: " . self::UPSYJS_URL_STAGING . "<small/>";
+				echo "<small>Default for this: " . esc_url(self::UPSYJS_URL_STAGING) . "<small/>";
 			} else {
-				echo "<small>Default for this: " . self::UPSYJS_URL_PRODUCTION . "<small/>";
+				echo "<small>Default for this: " . esc_url(self::UPSYJS_URL_PRODUCTION) . "<small/>";
 			}
 
 		} else {
 			//normal input
 			$disabled = !empty($value) ? 'disabled':'';
-			echo sprintf("<input %s type='%s' id='%s' name='%s' size='40' value='%s' />",$disabled, $args['subtype'], $args['id'], $args['name'], esc_attr($value));
+			echo sprintf("<input %s type='%s' id='%s' name='%s' size='40' value='%s' />",
+						esc_attr($disabled),
+						esc_attr($args['subtype']),
+						esc_attr($args['id']),
+						esc_attr($args['name']),
+						esc_attr($value)
+					);
+
 			echo '<small>No special characters and space are allowed<small/>';
 		}
 
@@ -1422,15 +1429,15 @@ class WC_upsy_Tagging
     a.onreadystatechange = b;
     d.appendChild(a)
   }, f = function () {
-    upsy_sdk.init("<?php echo $upsy_id; ?>");
+    upsy_sdk.init("<?php echo esc_attr($upsy_id); ?>");
   };
 <?php
 if($wp_env != 'production' && $wp_env != ''){
 	//dev
-echo 'const upsyEnv = window.upsyEnvironment = "' . $upsy_env . '";';
+echo 'const upsyEnv = window.upsyEnvironment = "' . esc_attr($upsy_env) . '";';
 }
 ?>
-e("<?php echo $upsyjsurl; ?>", f, document.body)
+e("<?php echo esc_url($upsyjsurl); ?>", f, document.body)
 })()
 </script>
 		<?php
