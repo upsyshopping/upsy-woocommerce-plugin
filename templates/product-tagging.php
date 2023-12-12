@@ -28,7 +28,7 @@
 			<span class="category"><?php echo esc_html( $category_path ); ?></span>
 		<?php endforeach; ?>
 		<?php if ( ! empty( $product['description'] ) ): ?>
-			<span class="description"><?php echo do_shortcode( $product['description'] ); ?></span>
+			<span class="description"><?php echo esc_html(do_shortcode( $product['description'] )); ?></span>
 		<?php endif; ?>
 	</div>
 <?php endif; ?>
