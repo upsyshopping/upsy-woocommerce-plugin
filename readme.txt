@@ -10,4 +10,5 @@ Upsy for WooCommerce is a plugin to enable the use of Upsy Shopping Helper in yo
 
 Upon installation, the plugin will prompt you to authorize Upsy Services to access your store's catalog to generate recommendations based on ti. After this, the plugin will be able to display the Upsy Shopping Helper widget in your store by accessing it from our cloud services. An active subscription to Upsy Shopping Helper will be required to use the plugin - contact our sales if you haven't already!
 
-Read more at: upsyshopping.com
+Read more at: https://upsyshopping.com
+Privacy Policy: https://upsyshopping.com/privacy-policy/
