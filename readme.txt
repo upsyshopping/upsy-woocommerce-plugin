@@ -1,5 +1,5 @@
 === Upsy for WooCommerce ===
-Contributors: upsy
+Contributors: upsyshopping
 Tags: upsy tagging, woocommerce, e-commerce, ecommerce, personalization, recommendations
 Requires at least: 4.4.0
 Tested up to: 6.4.1
