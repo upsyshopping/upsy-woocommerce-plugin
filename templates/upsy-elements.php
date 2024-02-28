@@ -8,6 +8,7 @@
  * @since   1.0.0
  * @var array $element_ids List of div id strings
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php if ( isset( $element_ids ) && is_array( $element_ids ) ): ?>

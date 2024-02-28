@@ -11,6 +11,7 @@
  * @package    PluginName
  * @subpackage PluginName/admin/partials
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap" id="upsy-setting-wrapper">

@@ -10,6 +10,7 @@
  * @var string $upsy_id_field_name The field name for the upsy id input field
  * @var string $upsy_id            The upsy id
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <p>

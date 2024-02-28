@@ -15,6 +15,7 @@
  * @package WooCommerce Upsy Tagging
  * @since   1.0.0
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 class WC_upsy_Tagging
 {
 	/**

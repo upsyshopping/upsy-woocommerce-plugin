@@ -8,6 +8,7 @@
  * @since   1.0.0
  * @var array $order Assoc list that includes order_number, buyer and line_items
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php if ( isset( $order ) && is_array( $order ) ): ?>
