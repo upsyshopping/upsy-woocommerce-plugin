@@ -8,6 +8,7 @@
  * @since   1.0.0
  * @var array $line_items List of items that include product_id, quantity, name, unit_price and price_currency_code
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php if ( isset( $line_items ) && is_array( $line_items ) ): ?>

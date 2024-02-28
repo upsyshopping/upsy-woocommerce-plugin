@@ -8,6 +8,7 @@
  * @since   1.0.0
  * @var string $category_path The category path
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php if ( isset( $category_path ) && is_string( $category_path ) ): ?>

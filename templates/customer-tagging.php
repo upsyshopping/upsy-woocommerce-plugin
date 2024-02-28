@@ -8,6 +8,7 @@
  * @since   1.0.0
  * @var array $customer Assoc list that includes first_name (optional), last_name, email
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php if ( isset( $customer ) && is_array( $customer ) ): ?>

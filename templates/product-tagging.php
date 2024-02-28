@@ -10,6 +10,7 @@
  *          price_currency_code, availability, categories (optional), description (optional) and
  *          date_published (optional)
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php if ( isset( $product ) && is_array( $product ) ): ?>
