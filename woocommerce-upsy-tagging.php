@@ -4,6 +4,7 @@
 	Plugin URI: https://upsyshopping.com
 	Description: Enables UPSY for WooCommerce.
 	Author: Upsy Company Oy
+	Text Domain: upsy-for-wooCommerce
 	Version: 3.3.0
 	License: GPL3
 */
@@ -358,7 +359,7 @@ class WC_upsy_Tagging
 		if (isset($_GET['error_message'])) {
 			do_action('admin_notices', ['type' => 'error']);
 		}else if($is_wc_auth_redirect && $_GET['success'] == '0'){
-			do_action('admin_notices', ['type' => 'error', 'message' => 'Upsy WooCommerce Authentication Failed.Please try again']);
+			do_action('admin_notices', ['type' => 'error', 'message' => 'error']);
 		}else if($is_wc_auth_redirect && $_GET['success'] == '1'){
 			if($_GET['user_id']){
 				update_option('upsy_settings_customer_id', sanitize_text_field($_GET['user_id']));
@@ -375,7 +376,7 @@ class WC_upsy_Tagging
 		$err_code = esc_attr('upsy_settings_customer_id');
 		$setting_field = 'upsy_settings_customer_id';
 		$type = is_array($data) && $data['type'] ? $data['type'] : 'error';
-		$message = is_array($data) && $data['message'] ? __($data['message'], '') : __('There is an error occured. Please try again','');
+		$message = is_array($data) && $data['message'] ? __('Upsy WooCommerce Authentication Failed.Please try again', 'upsy-for-wooCommerce') : __('There is an error occurred. Please try again.', 'upsy-for-wooCommerce');
 		add_settings_error(
 			$setting_field,
 			$err_code,
@@ -1658,8 +1659,6 @@ e("<?php echo esc_url($upsyjsurl); ?>", f, document.body)
 
 		return $translated_text;
 	}
-
-
 	
 }
 
